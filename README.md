@@ -1,4 +1,4 @@
-See our [Wiki](https://gitlab.informatik.hs-augsburg.de/ok/tnbt/-/wikis/home) for detailed information on the project concept or getting started documentation.
+See our [Wiki](https://gitlab.informatik.hs-augsburg.de/ok/tnbt/-/wikis/home) for detailed information on the project concept or getting started documentation.  
 See our [Milestones](https://gitlab.informatik.hs-augsburg.de/ok/tnbt/-/milestones) for project's time and task management.
 
 ## Projektbeschreibung
