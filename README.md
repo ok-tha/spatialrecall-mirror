@@ -1,4 +1,5 @@
 See our [Wiki](https://gitlab.informatik.hs-augsburg.de/ok/tnbt/-/wikis/home) for detailed information on the project concept or getting started documentation.
+See our [Milestones](https://gitlab.informatik.hs-augsburg.de/ok/tnbt/-/milestones) for project's time and task management.
 
 ## Projektbeschreibung
 Wir entwickeln eine visionOS-Anwendung, die das Konzept eines virtuellen "Mind Palace" nach dem Prinzip "Encode, Store, Recall" umsetzt. Nutzer können verschiedene digitale Artefakte (Bilder, Videos, Audio, Text, 3D-Objekte) in ihrer räumlichen Umgebung oder einer virtuellen Welt platzieren.
