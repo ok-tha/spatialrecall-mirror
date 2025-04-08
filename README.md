@@ -11,6 +11,10 @@ Unser Fokus liegt auf maximaler Immersion durch die spezifischen Funktionen von 
 
 Die Hypothese ist, dass die erhöhte Immersion durch visionOS die Gedächtnisleistung und emotionale Verbindung zu persönlichen Erinnerungen signifikant verbessern kann.
 
+## Code Conventions
+
+- Commits & Branches mit der jeweiligen Issue-ID (bspw. #2) kennzeichnen. Der Branch-Name sollte dem Issue-Titel entsprechen.
+
 ## Abhängigkeiten
 
 - tba.
