@@ -8,11 +8,19 @@
 import SwiftUI
 import RealityKit
 
-struct ContentView: View {
 
+struct ContentView: View {
+    
+    @StateObject var boxManager = BoxManager.shared
+    
     var body: some View {
         VStack {
             ToggleImmersiveSpaceButton()
+            Button {
+                boxManager.addBox()
+            } label: {
+                Text("Click me")
+            }
         }
     }
 }

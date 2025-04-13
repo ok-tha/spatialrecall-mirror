@@ -12,11 +12,16 @@ import RealityKitContent
 struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
 
+    @StateObject var boxManager = BoxManager.shared
+    
     var body: some View {
         RealityView { content in
-            // Add the initial RealityKit content
-            if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                content.add(immersiveContentEntity)
+            
+        } update: {content in
+            for box in boxManager.boxes{
+                if !content.entities.contains(box){
+                    content.add(box)
+                }
             }
         }
     }
