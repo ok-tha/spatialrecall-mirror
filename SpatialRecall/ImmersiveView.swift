@@ -8,6 +8,7 @@
 import SwiftUI
 import RealityKit
 import RealityKitContent
+import ARKit
 
 struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
@@ -23,7 +24,22 @@ struct ImmersiveView: View {
                     content.add(box)
                 }
             }
-        }
+        }.gesture(drag)
+    }
+    
+    var drag: some Gesture {
+        DragGesture()
+            .targetedToAnyEntity()
+            .onChanged { value in
+                let entity = value.entity
+                if(boxManager.boxes.contains(entity)) {
+                    let box: Entity = boxManager.boxes.first(where: {entity == $0})!
+                    box.position = value.convert(value.location3D, from: .local, to: box.parent!)
+                }
+            }
+            .onEnded { value in
+                print("DragGesture ended: \(value)")
+            }
     }
 }
 
