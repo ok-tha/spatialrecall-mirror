@@ -17,7 +17,7 @@ struct ContentView: View {
         VStack {
             ToggleImmersiveSpaceButton()
             Button {
-                boxManager.addBox()
+                //boxManager.addBox()
             } label: {
                 Text("Click me")
             }
