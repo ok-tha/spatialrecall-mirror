@@ -14,25 +14,78 @@ struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
 
     @StateObject var boxManager = BoxManager.shared
-    @State private var buttonEntity: ModelEntity? = nil
 
     
     var body: some View {
         RealityView { content in
             
-            let buttonEntity = ModelEntity(mesh: .generateBox(size:0.05))
-            buttonEntity.name = "Button"
+            let textMesh = MeshResource.generateText(
+                "Test",
+                extrusionDepth: 0.001,
+                font: .boldSystemFont(ofSize: 0.05),
+                containerFrame: .zero,
+                alignment: .center
+            )
 
-            buttonEntity.generateCollisionShapes(recursive: false)
-            buttonEntity.components.set(InputTargetComponent(allowedInputTypes: .all))
+            let textMaterial = SimpleMaterial(color: .cyan, isMetallic: false)
+            let textEntity = ModelEntity(mesh: textMesh, materials: [textMaterial])
+
+            let textBounds = textEntity.model?.mesh.bounds.extents ?? SIMD3<Float>(0.1, 0.05, 0.01)
+
+            let padding: Float = 0.02
+            let backgroundWidth = textBounds.x + padding
+            let backgroundHeight = textBounds.y + padding
+            let backgroundDepth: Float = 0.001 // very thin
+
+            let backgroundMesh = MeshResource.generateBox(
+                size: [backgroundWidth, backgroundHeight, backgroundHeight],
+                cornerRadius: backgroundHeight / 2 // Rounded ends -> pill shape
+            )
+
+            let backgroundMaterial = SimpleMaterial(
+                color: .white.withAlphaComponent(0.5), // semi-transparent white
+                isMetallic: false
+            )
+
+            let backgroundEntity = ModelEntity(mesh: backgroundMesh, materials: [backgroundMaterial])
+
+            // --- VERY IMPORTANT ---
+            // Center the background under the text
+            // By default, meshes' pivot is centered at (0,0,0),
+            // but the text may not be centered correctly (due to how text mesh is generated)
+            // Fixing textEntity pivot to center:
+
+            if let textBounds = textEntity.model?.mesh.bounds {
+                textEntity.position = SIMD3<Float>(
+                    -textBounds.center.x,
+                    -textBounds.center.y,
+                    0.0
+                )
+            }
+
+            // Move background slightly back so they don't overlap visually
+            backgroundEntity.position.z = -0.001
+
+            backgroundEntity.name = "Button"
+            backgroundEntity.generateCollisionShapes(recursive: false)
+            backgroundEntity.components.set(InputTargetComponent(allowedInputTypes: .all))
+
+            // --- Group into a parent entity ---
+            let containerEntity = Entity()
+            containerEntity.addChild(backgroundEntity)
+            containerEntity.addChild(textEntity)
             
+            containerEntity.components.set(BillboardComponent())
+
             let anchor = AnchorEntity(.head)
-            anchor.position = SIMD3<Float>(0.25,-0.25,-0.5)
+            anchor.position = SIMD3<Float>(0, -0.25, -0.5)
             
-            
-            anchor.children.append(buttonEntity)
-            self.buttonEntity = buttonEntity
+
+
+            // Add the container to the anchor
+            anchor.addChild(containerEntity)
             content.add(anchor)
+
             
         }
         update: {content in
@@ -85,3 +138,5 @@ struct ImmersiveView: View {
     ImmersiveView()
         .environment(AppModel())
 }
+
+
