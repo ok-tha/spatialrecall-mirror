@@ -28,7 +28,6 @@ struct ImmersiveView: View {
                 !artefactManager.artefactEntities.contains { $0.id == entity.id }
             }
             entitiesToRemove.forEach { content.remove($0) }
-            
         }
         .gesture(ArtefactGestures.createDragGest(artefactManager: artefactManager))
         .gesture(ArtefactGestures.createClickGesture(artefactManager: artefactManager))
