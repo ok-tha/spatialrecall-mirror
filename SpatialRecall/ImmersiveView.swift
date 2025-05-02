@@ -12,13 +12,26 @@ import RealityKitContent
 struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
 
+    @StateObject private var artefactManager = ArtefactManager.shared
+    
     var body: some View {
+        ArtefactHudButton()
         RealityView { content in
-            // Add the initial RealityKit content
-            if let immersiveContentEntity = try? await Entity(named: "Immersive", in: realityKitContentBundle) {
-                content.add(immersiveContentEntity)
-            }
         }
+        update: { content in
+            for artefact in artefactManager.artefactEntities{
+               if !content.entities.contains(artefact){
+                   content.add(artefact)
+               }
+            }
+            let entitiesToRemove = content.entities.filter { entity in
+                !artefactManager.artefactEntities.contains { $0.id == entity.id }
+            }
+            entitiesToRemove.forEach { content.remove($0) }
+            
+        }
+        .gesture(ArtefactGestures.createDragGest(artefactManager: artefactManager))
+        .gesture(ArtefactGestures.createClickGesture(artefactManager: artefactManager))
     }
 }
 
