@@ -30,7 +30,7 @@ struct ImmersiveView: View {
             entitiesToRemove.forEach { content.remove($0) }
         }
         .gesture(ArtefactGestures.createDragGest(artefactManager: artefactManager))
-        .gesture(ArtefactGestures.createClickGesture(artefactManager: artefactManager))
+        .gesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
     }
 }
 

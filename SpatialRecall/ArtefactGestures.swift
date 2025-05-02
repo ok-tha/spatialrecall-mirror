@@ -28,7 +28,7 @@ struct ArtefactGestures {
                 }
             }
     }
-    static func createClickGesture(artefactManager: ArtefactManager) -> some Gesture {
+    static func createRemoveOnTapGesture(artefactManager: ArtefactManager) -> some Gesture {
         return  TapGesture()
             .targetedToAnyEntity()
             .onEnded{ value in
