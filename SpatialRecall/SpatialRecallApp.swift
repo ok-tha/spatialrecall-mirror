@@ -16,6 +16,9 @@ struct SpatialRecallApp: App {
     var body: some Scene {
         WindowGroup(id: appModel.imagePickerWindowID) {
             ImagePickerWindow()
+                .environment(appModel)
+            ReactivateImmersiveSpaceButton()
+                .environment(appModel)
         }
         
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
