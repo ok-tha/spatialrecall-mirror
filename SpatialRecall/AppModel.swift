@@ -12,6 +12,7 @@ import SwiftUI
 @Observable
 class AppModel {
     let immersiveSpaceID = "ImmersiveSpace"
+    let imagePickerWindowID = "ImagePickerWindow"
     enum ImmersiveSpaceState {
         case closed
         case inTransition
