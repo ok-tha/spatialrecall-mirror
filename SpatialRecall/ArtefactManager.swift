@@ -7,6 +7,7 @@
 
 import RealityKit
 import SwiftUI
+import struct PhotosUI.PhotosPickerItem
 
 @MainActor
 class ArtefactManager: ObservableObject {
@@ -15,6 +16,7 @@ class ArtefactManager: ObservableObject {
     @Published var artefactEntities: [Entity] = []
     
     @Published var isErasing = false //to check if should delete on click
+    @Published var selectedImage: PhotosPickerItem? //for the image to be acceses from the window in the AddImage
     
     func addArtefact(artefact: Entity, anchor: AnchorEntity) {
         
@@ -25,6 +27,7 @@ class ArtefactManager: ObservableObject {
         
         anchor.children.append(artefact)
         
+        print(artefact.components.has(CollisionComponent.self))
         artefactEntities.append(anchor)
         artefacts.append(artefact)
     }

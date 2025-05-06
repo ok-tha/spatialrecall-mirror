@@ -9,7 +9,7 @@ import SwiftUI
 import RealityKit
 
 struct ArtefactGestures {
-    static func createDragGest(artefactManager: ArtefactManager) -> some Gesture {
+    static func createDragGesture(artefactManager: ArtefactManager) -> some Gesture {
         return DragGesture()
             .targetedToAnyEntity()
             .onChanged { value in
@@ -21,8 +21,7 @@ struct ArtefactGestures {
                         if artefact.parent is AnchorEntity {
                             artefact = artefact.parent!
                         }
-                        let translation = SIMD3<Float>(value.translation3D / 100.0)
-                        let newPosition = entity.position + translation
+                        let newPosition = SIMD3<Float>(value.translation3D / 100.0)
                         artefact.position = newPosition
                     }
                 }
@@ -46,5 +45,13 @@ struct ArtefactGestures {
                     }
                 }
             }
+    }
+    
+}
+
+extension RealityView {
+    func installGestures(artefactManager: ArtefactManager) -> some View {
+        simultaneousGesture(ArtefactGestures.createDragGesture(artefactManager: artefactManager))
+            .simultaneousGesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
     }
 }

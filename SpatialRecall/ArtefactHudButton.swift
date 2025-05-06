@@ -30,6 +30,7 @@ struct ArtefactHudButton: View{
                     if(!artefactManager.isErasing) {
                         HStack{
                             AddBoxArtefact()
+                            AddImageArtefact()
                         }
                     }
                     HStack {

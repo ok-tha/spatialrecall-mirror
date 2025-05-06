@@ -14,13 +14,11 @@ struct SpatialRecallApp: App {
     @State private var avPlayerViewModel = AVPlayerViewModel()
     
     var body: some Scene {
-        WindowGroup {
-            if avPlayerViewModel.isPlaying {
-                AVPlayerView(viewModel: avPlayerViewModel)
-            } else {
-                ContentView()
-                    .environment(appModel)
-            }
+        WindowGroup(id: appModel.imagePickerWindowID) {
+            ImagePickerWindow()
+                .environment(appModel)
+            ReactivateImmersiveSpaceButton()
+                .environment(appModel)
         }
         
         ImmersiveSpace(id: appModel.immersiveSpaceID) {

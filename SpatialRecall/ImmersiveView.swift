@@ -22,6 +22,7 @@ struct ImmersiveView: View {
             for artefact in artefactManager.artefactEntities{
                if !content.entities.contains(artefact){
                    content.add(artefact)
+                   print(artefactManager.artefactEntities.count)
                }
             }
             let entitiesToRemove = content.entities.filter { entity in
@@ -29,8 +30,7 @@ struct ImmersiveView: View {
             }
             entitiesToRemove.forEach { content.remove($0) }
         }
-        .gesture(ArtefactGestures.createDragGest(artefactManager: artefactManager))
-        .gesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
+        .installGestures(artefactManager: artefactManager)
     }
 }
 
