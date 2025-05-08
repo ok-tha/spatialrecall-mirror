@@ -20,6 +20,11 @@ struct SpatialRecallApp: App {
             ReactivateImmersiveSpaceButton()
                 .environment(appModel)
         }
+        WindowGroup(id: appModel.textEditorWindowID){
+            TextArtefactWindow()
+            ReactivateImmersiveSpaceButton()
+                .environment(appModel)
+        }
         
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()

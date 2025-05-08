@@ -11,6 +11,7 @@ import RealityKitContent
 
 struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
+    @Environment(\.openWindow) var openWindow
 
     @StateObject private var artefactManager = ArtefactManager.shared
     
@@ -30,7 +31,7 @@ struct ImmersiveView: View {
             }
             entitiesToRemove.forEach { content.remove($0) }
         }
-        .installGestures(artefactManager: artefactManager)
+        .installGestures(artefactManager: artefactManager, appModel: appModel, openWindow: openWindow)
     }
 }
 

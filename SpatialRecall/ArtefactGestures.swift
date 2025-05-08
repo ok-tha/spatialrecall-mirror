@@ -16,8 +16,9 @@ struct ArtefactGestures {
                 Task { @MainActor in
                     if(artefactManager.isErasing) {return}
                     let entity = value.entity
-                    if artefactManager.artefacts.contains(entity) {
-                        var artefact: Entity = artefactManager.artefacts.first(where: { $0 == entity })!
+                    print(checkIfIsArtefact(entity: entity, artefactManager: artefactManager))
+                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
+                        guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
                         if artefact.parent is AnchorEntity {
                             artefact = artefact.parent!
                         }
@@ -34,8 +35,8 @@ struct ArtefactGestures {
                 Task{ @MainActor in
                     if(!artefactManager.isErasing) {return}
                     let entity = value.entity
-                    if artefactManager.artefacts.contains(entity) {
-                        var artefact: Entity = artefactManager.artefacts.first(where: { $0 == entity })!
+                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
+                        guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
                         artefactManager.artefacts.removeAll(where: { $0 == entity})
                         if artefact.parent is AnchorEntity {
                             artefact = artefact.parent!
@@ -47,11 +48,46 @@ struct ArtefactGestures {
             }
     }
     
+    static func createEditTextGesture(artefactManager: ArtefactManager, appModel: AppModel, openWindow: OpenWindowAction) -> some Gesture {
+        return TapGesture()
+            .targetedToAnyEntity()
+            .onEnded { value in
+                Task { @MainActor in
+                    if !artefactManager.isErasing {
+                        let entity = value.entity
+                        if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
+                            guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
+                            guard artefact.name == "TextEntity" else {return}
+                            artefactManager.textToEditID = artefact.id
+                            openWindow(id: appModel.textEditorWindowID)
+                        }
+                    }
+                }
+            }
+    }
+    @MainActor
+    private static func checkIfIsArtefact(entity: Entity, artefactManager: ArtefactManager) -> Bool {
+        if artefactManager.artefacts.contains(entity){return true}
+        else if artefactManager.artefacts.contains(entity.parent ?? Entity()) {return true}
+        
+        return false
+    }
+    @MainActor
+    private static func getArtefactEntity(entity: Entity, artefactManager: ArtefactManager) -> Entity? {
+        if let artefact: Entity = artefactManager.artefacts.first(where: { $0 == entity }) {
+            return artefact
+        }
+        else if let artefact: Entity = artefactManager.artefacts.first(where: { $0 == entity.parent }) {
+            return artefact
+        }
+        return nil
+    }
 }
 
 extension RealityView {
-    func installGestures(artefactManager: ArtefactManager) -> some View {
+    func installGestures(artefactManager: ArtefactManager, appModel: AppModel, openWindow: OpenWindowAction) -> some View {
         simultaneousGesture(ArtefactGestures.createDragGesture(artefactManager: artefactManager))
             .simultaneousGesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
+            .simultaneousGesture(ArtefactGestures.createEditTextGesture(artefactManager: artefactManager, appModel: appModel, openWindow: openWindow))
     }
 }
