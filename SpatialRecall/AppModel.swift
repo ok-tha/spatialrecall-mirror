@@ -13,6 +13,7 @@ import SwiftUI
 class AppModel {
     let immersiveSpaceID = "ImmersiveSpace"
     let imagePickerWindowID = "ImagePickerWindow"
+    let textEditorWindowID = "TextEditorWindow"
     enum ImmersiveSpaceState {
         case closed
         case inTransition
