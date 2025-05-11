@@ -18,12 +18,13 @@ class ArtefactManager: ObservableObject {
     @Published var isErasing = false //to check if should delete on click
     @Published var selectedImage: PhotosPickerItem? //for the image to be acceses from the window in the AddImage
     @Published var textToEditID: UInt64?
+    @Published var selectedAudioURL: URL?
     
     func addArtefact(artefact: Entity, anchor: AnchorEntity) {
         
         artefact.components.set(InputTargetComponent(allowedInputTypes: .all))
         artefact.components.set(GroundingShadowComponent(castsShadow: true))
-        artefact.generateCollisionShapes(recursive: true)
+        artefact.generateCollisionShapes(recursive: false)
         artefact.position = .zero
         
         anchor.children.append(artefact)
