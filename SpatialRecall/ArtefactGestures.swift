@@ -16,7 +16,6 @@ struct ArtefactGestures {
                 Task { @MainActor in
                     if(artefactManager.isErasing) {return}
                     let entity = value.entity
-                    print(checkIfIsArtefact(entity: entity, artefactManager: artefactManager))
                     if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
                         guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
                         if artefact.parent is AnchorEntity {
@@ -54,14 +53,13 @@ struct ArtefactGestures {
                 Task{ @MainActor in
                     if(artefactManager.isErasing) {return}
                     let entity = value.entity
-                    if(entity.name != "AudioEntity") {return}
                     if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
-                        guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
+                        guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
+                        if(artefact.name != "AudioEntity") {return}
                         
                         if let audioComponent = artefact.components[AudioComponent.self] {
                             var isPlaying = false
                             if let playBack = audioComponent.playbackController {
-                                print("foo")
                                 if playBack.isPlaying {
                                     playBack.pause()
                                 }else{
@@ -113,7 +111,6 @@ struct ArtefactGestures {
             indicator = ModelEntity(mesh: mesh, materials: [material])
             indicator.name = "PlayIndicator"
         }
-        print(indicator.name)
         indicator.position = [0, 0, 0.11]
         entity.addChild(indicator)
     }

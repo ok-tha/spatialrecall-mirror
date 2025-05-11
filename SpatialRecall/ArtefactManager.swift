@@ -24,12 +24,11 @@ class ArtefactManager: ObservableObject {
         
         artefact.components.set(InputTargetComponent(allowedInputTypes: .all))
         artefact.components.set(GroundingShadowComponent(castsShadow: true))
-        artefact.generateCollisionShapes(recursive: false)
+        artefact.generateCollisionShapes(recursive: true)
         artefact.position = .zero
         
         anchor.children.append(artefact)
         
-        print(artefact.components.has(CollisionComponent.self))
         artefactEntities.append(anchor)
         artefacts.append(artefact)
     }
