@@ -19,6 +19,7 @@ class ArtefactManager: ObservableObject {
     @Published var selectedImage: PhotosPickerItem? //for the image to be acceses from the window in the AddImage
     @Published var textToEditID: UInt64?
     @Published var selectedAudioURL: URL?
+    @Published var selectedObjectURL: URL?
     
     func addArtefact(artefact: Entity, anchor: AnchorEntity) {
         
