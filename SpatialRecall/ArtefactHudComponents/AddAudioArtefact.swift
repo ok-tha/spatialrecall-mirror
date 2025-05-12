@@ -51,8 +51,6 @@ struct AddAudioArtefact: View {
                 
                 
                 artefactManager.addArtefact(artefact: sphere, anchor: anchor)
-                
-                dismissWindow(id: appModel.audioPickerWindowID)
             }
         }
     }

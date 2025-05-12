@@ -12,12 +12,12 @@ import PhotosUI
 
 struct AudioPickerWindow: View {
     @StateObject private var artefactManager = ArtefactManager.shared
-    @State private var isPickerPresented = false
+    @State private var isPickerPresented = true
+    
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        Button(action: { isPickerPresented = true }) {
-            Text("Select Audio File")
-        }
+        Text("Loading file picker...")
         .fileImporter(
             isPresented: $isPickerPresented,
             allowedContentTypes: [.audio],
@@ -27,11 +27,19 @@ struct AudioPickerWindow: View {
             case .success(let urls):
                 if let url = urls.first {
                     artefactManager.selectedAudioURL = url
+                    dismiss()
                 }
             case .failure(let error):
                 print("File selection failed: \(error.localizedDescription)")
             }
         }
         .padding()
+        .onChange(of: isPickerPresented) {
+            if !isPickerPresented {
+                // FileImporter has been dismissed
+                print("Importer dismissed without selection (user cancelled).")
+                dismiss()
+            }
+        }
     }
 }
