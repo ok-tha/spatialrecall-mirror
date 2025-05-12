@@ -16,7 +16,6 @@ struct ArtefactGestures {
                 Task { @MainActor in
                     if(artefactManager.isErasing) {return}
                     let entity = value.entity
-                    print(checkIfIsArtefact(entity: entity, artefactManager: artefactManager))
                     if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
                         guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
                         if artefact.parent is AnchorEntity {
@@ -47,6 +46,75 @@ struct ArtefactGestures {
                 }
             }
     }
+    static func createPlayAudioGesture(artefactManager: ArtefactManager) -> some Gesture {
+        return  TapGesture()
+            .targetedToAnyEntity()
+            .onEnded{ value in
+                Task{ @MainActor in
+                    if(artefactManager.isErasing) {return}
+                    let entity = value.entity
+                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
+                        guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
+                        if(artefact.name != "AudioEntity") {return}
+                        
+                        if let audioComponent = artefact.components[AudioComponent.self] {
+                            var isPlaying = false
+                            if let playBack = audioComponent.playbackController {
+                                if playBack.isPlaying {
+                                    playBack.pause()
+                                }else{
+                                    isPlaying = true
+                                    playBack.play()
+                                }
+                            }else {
+                                guard let resource = try? AudioFileResource.load(contentsOf: audioComponent.url) else{print("smth went wrong"); return}
+                                artefact.components.set(AudioComponent(url: audioComponent.url, playbackController: artefact.playAudio(resource)))
+                                isPlaying = true
+                            }
+                            updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying)
+                            
+                        }
+                        
+                    }
+                }
+            }
+    }
+    static func updatePlayPauseIndicator(for entity: Entity, isPlaying: Bool) {
+        // Remove existing indicator if any
+        entity.children.removeAll(where: { $0.name == "PlayIndicator" || $0.name == "PauseIndicator" })
+
+        let indicator: ModelEntity
+        let material = SimpleMaterial(color: .white, roughness: 0.2, isMetallic: false)
+        if isPlaying {
+            // Pause icon: two rectangles
+            let leftBar = ModelEntity(mesh: .generateBox(size: [0.02, 0.08, 0.01]), materials: [material])
+            leftBar.position.x = -0.015
+            let rightBar = ModelEntity(mesh: .generateBox(size: [0.02, 0.08, 0.01]), materials: [material])
+            rightBar.position.x = 0.015
+            indicator = ModelEntity()
+            indicator.name = "PauseIndicator"
+            indicator.addChild(leftBar)
+            indicator.addChild(rightBar)
+        } else {
+            var descriptor = MeshDescriptor(name: "triangle")
+               // Triangle vertices
+            descriptor.positions = MeshBuffers.Positions([
+                SIMD3<Float>(-0.02, -0.05, 0.0), // bottom-left
+                SIMD3<Float>( 0.05,  0.0,  0.0), // right
+                SIMD3<Float>(-0.02,  0.05, 0.0)  // top-left
+            ])
+           
+            // Triangle face index
+            descriptor.primitives = .triangles([0, 1, 2])
+           
+            let mesh = try! MeshResource.generate(from: [descriptor])// Replace with triangle mesh for real play icon
+            indicator = ModelEntity(mesh: mesh, materials: [material])
+            indicator.name = "PlayIndicator"
+        }
+        indicator.position = [0, 0, 0.11]
+        entity.addChild(indicator)
+    }
+
     
     static func createEditTextGesture(artefactManager: ArtefactManager, appModel: AppModel, openWindow: OpenWindowAction) -> some Gesture {
         return TapGesture()
@@ -89,5 +157,6 @@ extension RealityView {
         simultaneousGesture(ArtefactGestures.createDragGesture(artefactManager: artefactManager))
             .simultaneousGesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
             .simultaneousGesture(ArtefactGestures.createEditTextGesture(artefactManager: artefactManager, appModel: appModel, openWindow: openWindow))
+            .simultaneousGesture(ArtefactGestures.createPlayAudioGesture(artefactManager: artefactManager))
     }
 }

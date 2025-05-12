@@ -19,7 +19,7 @@ struct AddTextArtefact: View {
     
     var body: some View {
         VStack{
-            Button(action: {inputText = true; print(inputText)}) {
+            Button(action: {inputText = true;}) {
                 Image(systemName: "keyboard")
                     .resizable()
                     .aspectRatio(contentMode: .fit)

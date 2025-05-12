@@ -30,7 +30,6 @@ struct TextArtefactWindow: View {
             dismiss()
             return ""
         }
-        print(artefact.children)
         for child in artefact.children {
             if let tagComp = child.components[TagComponent.self],
                tagComp.tag == "TextField" {

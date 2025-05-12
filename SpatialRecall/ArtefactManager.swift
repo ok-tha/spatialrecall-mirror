@@ -18,6 +18,7 @@ class ArtefactManager: ObservableObject {
     @Published var isErasing = false //to check if should delete on click
     @Published var selectedImage: PhotosPickerItem? //for the image to be acceses from the window in the AddImage
     @Published var textToEditID: UInt64?
+    @Published var selectedAudioURL: URL?
     
     func addArtefact(artefact: Entity, anchor: AnchorEntity) {
         
@@ -28,7 +29,6 @@ class ArtefactManager: ObservableObject {
         
         anchor.children.append(artefact)
         
-        print(artefact.components.has(CollisionComponent.self))
         artefactEntities.append(anchor)
         artefacts.append(artefact)
     }
