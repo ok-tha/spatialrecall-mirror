@@ -1,18 +1,19 @@
 //
-//  ImagePickerWindow 2.swift
+//  ObjectPickerWindow.swift
 //  SpatialRecall
 //
-//  Created by Lorenz Bernert on 08.05.25.
+//  Created by Lorenz Bernert on 12.05.25.
 //
 
-
-
 import SwiftUI
-import PhotosUI
+import UniformTypeIdentifiers
 
-struct AudioPickerWindow: View {
+
+
+struct ObjectPickerWindow: View {
     @StateObject private var artefactManager = ArtefactManager.shared
     @State private var isPickerPresented = true
+    @State private var appModel = AppModel()
     
     @Environment(\.dismiss) private var dismiss
     
@@ -20,13 +21,14 @@ struct AudioPickerWindow: View {
         Text("Loading file picker...")
         .fileImporter(
             isPresented: $isPickerPresented,
-            allowedContentTypes: [.audio],
-            allowsMultipleSelection: false
+            allowedContentTypes: [.obj, .stl, .ply, .usdz],
+            allowsMultipleSelection: false,
         ) { result in
+            print(result)
             switch result {
             case .success(let urls):
                 if let url = urls.first {
-                    artefactManager.selectedAudioURL = url
+                    artefactManager.selectedObjectURL = url
                     dismiss()
                 }
             case .failure(let error):
@@ -42,4 +44,11 @@ struct AudioPickerWindow: View {
             }
         }
     }
+}
+
+extension UTType {
+    static let obj = UTType(filenameExtension: "obj")!
+    static let stl = UTType(filenameExtension: "stl")!
+    static let ply = UTType(filenameExtension: "ply")!
+    
 }

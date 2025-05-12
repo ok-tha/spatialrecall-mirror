@@ -16,6 +16,7 @@ class AppModel {
     let imagePickerWindowID = "ImagePickerWindow"
     let textEditorWindowID = "TextEditorWindow"
     let audioPickerWindowID = "AudioPickerWindow"
+    let objectPickerWindowID = "ObjectPickerWindow"
     enum ImmersiveSpaceState {
         case closed
         case inTransition
