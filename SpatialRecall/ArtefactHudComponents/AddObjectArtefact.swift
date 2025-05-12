@@ -18,7 +18,7 @@ struct AddObjectArtefact: View {
         Button(action: {
             openWindow(id: appModel.objectPickerWindowID)
         }) {
-            Image(systemName: "square.and.arrow.down")
+            Image(systemName: "cube")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)

@@ -13,7 +13,7 @@ struct AddBoxArtefact: View {
     
     var body: some View {
         Button(action: {addBox()}) {
-            Image(systemName: "cube")
+            Image(systemName: "wrench.and.screwdriver")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 32, height: 32)
