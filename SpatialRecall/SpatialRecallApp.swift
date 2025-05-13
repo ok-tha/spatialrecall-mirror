@@ -37,6 +37,12 @@ struct SpatialRecallApp: App {
             ReactivateImmersiveSpaceButton()
                 .environment(appModel)
         }.defaultSize(width: 400, height: 200)
+        WindowGroup(id: appModel.videoPickerWindowID) {
+            VideoPickerWindow()
+                .environment(appModel)
+            ReactivateImmersiveSpaceButton()
+                .environment(appModel)
+        }.defaultSize(width: 400, height: 300)
         
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()

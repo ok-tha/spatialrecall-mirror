@@ -8,6 +8,7 @@
 import RealityKit
 import SwiftUI
 import struct PhotosUI.PhotosPickerItem
+import AVKit
 
 @MainActor
 class ArtefactManager: ObservableObject {
@@ -20,6 +21,7 @@ class ArtefactManager: ObservableObject {
     @Published var textToEditID: UInt64?
     @Published var selectedAudioURL: URL?
     @Published var selectedObjectURL: URL?
+    @Published var selectedVideoURL: URL?
     
     func addArtefact(artefact: Entity, anchor: AnchorEntity) {
         
