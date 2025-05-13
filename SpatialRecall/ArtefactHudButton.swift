@@ -62,6 +62,7 @@ struct ArtefactHudButton: View{
                             AddTextArtefact(inputText: $inputText, text: $text)
                             AddAudioArtefact()
                             AddObjectArtefact()
+                            AddVideoArtefact()
                         }
                     }
                     HStack {

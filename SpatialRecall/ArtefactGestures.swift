@@ -79,6 +79,38 @@ struct ArtefactGestures {
                 }
             }
     }
+    static func createPlayVideoGesture(artefactManager: ArtefactManager) -> some Gesture {
+        return  TapGesture()
+            .targetedToAnyEntity()
+            .onEnded{ value in
+                Task{ @MainActor in
+                    if(artefactManager.isErasing) {return}
+                    let entity = value.entity
+                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
+                        guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
+                        if(artefact.name != "VideoEntity") {return}
+                        
+                        if let videoComponent = artefact.components[VideoComponent.self] {
+                            var isPlaying = videoComponent.isPlaying
+                            if  videoComponent.player.currentTime() >= videoComponent.player.currentItem?.duration ?? .zero {
+                                videoComponent.player.seek(to: .zero)
+                                isPlaying = false
+                            }
+                            if !isPlaying {
+                                videoComponent.player.play()
+                                isPlaying = true
+                            }else if isPlaying {
+                                videoComponent.player.pause()
+                                isPlaying = false
+                            }
+                            artefact.components[VideoComponent.self] = VideoComponent(player: videoComponent.player, isPlaying: isPlaying)
+                        }
+                        
+                    }
+                }
+            }
+    }
+    
     static func updatePlayPauseIndicator(for entity: Entity, isPlaying: Bool) {
         // Remove existing indicator if any
         entity.children.removeAll(where: { $0.name == "PlayIndicator" || $0.name == "PauseIndicator" })
@@ -158,5 +190,6 @@ extension RealityView {
             .simultaneousGesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
             .simultaneousGesture(ArtefactGestures.createEditTextGesture(artefactManager: artefactManager, appModel: appModel, openWindow: openWindow))
             .simultaneousGesture(ArtefactGestures.createPlayAudioGesture(artefactManager: artefactManager))
+            .simultaneousGesture(ArtefactGestures.createPlayVideoGesture(artefactManager: artefactManager))
     }
 }
