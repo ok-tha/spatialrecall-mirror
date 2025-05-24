@@ -4,7 +4,6 @@
 //
 //  Created by Oliver on 08.04.25.
 //
-
 import SwiftUI
 
 @main
@@ -12,7 +11,8 @@ struct SpatialRecallApp: App {
     
     @State private var appModel = AppModel()
     @State private var avPlayerViewModel = AVPlayerViewModel()
-    
+    @StateObject private var roomTrackingManager = RoomTrackingManager() // ← HIER NEU
+
     var body: some Scene {
         WindowGroup(id: appModel.imagePickerWindowID) {
             ImagePickerWindow()
@@ -47,6 +47,7 @@ struct SpatialRecallApp: App {
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
                 .environment(appModel)
+                .environmentObject(roomTrackingManager) // ← HIER NEU
                 .onAppear {
                     appModel.immersiveSpaceState = .open
                     avPlayerViewModel.play()
@@ -56,6 +57,7 @@ struct SpatialRecallApp: App {
                     avPlayerViewModel.reset()
                 }
         }
-        .immersionStyle(selection: .constant(.mixed), in: .mixed)
+        .immersionStyle(selection: .constant(.full), in: .mixed)
+        .immersionStyle(selection: .constant(.mixed), in: .full)
     }
 }
