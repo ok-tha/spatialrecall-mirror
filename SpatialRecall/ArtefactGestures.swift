@@ -9,108 +9,178 @@ import SwiftUI
 import RealityKit
 
 struct ArtefactGestures {
+    // MARK: - Gesture State
+    private static var currentDragEntity: Entity? // Can be used to check if isDragging (!= nil). If problems appear, maybe use a dictionary [:] instead.
+    private static var startPosition: SIMD3<Float> = .zero
+    private static var isRotating: Bool = false
+    private static var startOrientation: Rotation3D?
+    private static var isScaling: Bool = false
+    private static var startScale: SIMD3<Float> = .one
+    
+    // MARK: - Drag Gesture
     static func createDragGesture(artefactManager: ArtefactManager) -> some Gesture {
         return DragGesture()
             .targetedToAnyEntity()
             .onChanged { value in
                 Task { @MainActor in
-                    if(artefactManager.isErasing) {return}
-                    let entity = value.entity
-                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
-                        guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
-                        if artefact.parent is AnchorEntity {
-                            artefact = artefact.parent!
-                        }
-                        let newPosition = SIMD3<Float>(value.translation3D / 100.0)
-                        artefact.position = newPosition
+                    guard !artefactManager.isErasing else { return }
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
+                                                                
+                    // Set initial position only once per drag session
+                    if currentDragEntity == nil || currentDragEntity !== artefact {
+                        currentDragEntity = artefact
+                        startPosition = artefact.position
                     }
+                
+                    let movement = value.convert(value.translation3D, from: .local, to: artefact.parent ?? artefact)
+                    artefact.position = startPosition + movement
                 }
             }
+            .onEnded({ _ in
+                currentDragEntity = nil
+                startPosition = .zero
+            })
     }
+
+    // MARK: - Rotate Gesture
+    static func createRotateGesture(artefactManager: ArtefactManager) -> some Gesture {
+        return RotateGesture3D()
+            .targetedToAnyEntity()
+            .onChanged { value in
+                Task { @MainActor in
+                    guard !artefactManager.isErasing else { return }
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
+                                        
+                    if !isRotating {
+                        isRotating = true
+                        startOrientation = .init(artefact.orientation(relativeTo: nil))
+                    }
+                    
+                    let rotation = value.rotation
+                    let flippedRotation = Rotation3D(
+                        angle: rotation.angle,
+                        axis: RotationAxis3D(
+                            x: -rotation.axis.x,
+                            y: rotation.axis.y,
+                            z: -rotation.axis.z
+                        )
+                    )
+                    
+                    let newOrientation = startOrientation!.rotated(by: flippedRotation)
+                    artefact.setOrientation(.init(newOrientation), relativeTo: nil)
+                }
+            }
+            .onEnded({ _ in
+                isRotating = false;
+                startOrientation = .identity
+            })
+    }
+    
+    // MARK: - Magnify Gesture
+    static func createMagnifyGesture(artefactManager: ArtefactManager) -> some Gesture {
+        return MagnifyGesture()
+            .targetedToAnyEntity()
+            .onChanged { value in
+                Task { @MainActor in
+                    guard !artefactManager.isErasing else { return }
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
+                                        
+                    if !isScaling {
+                        isScaling = true
+                        startScale = artefact.scale
+                    }
+                    
+                    let magnification = Float(value.magnification)
+                    // let clampedMagnification = max(0.1, min(3.0, magnification)) // Limit between 10% and 300%
+                    artefact.scale = startScale * magnification
+                }
+            }
+            .onEnded({ _ in
+                isScaling = false;
+                startScale = SIMD3<Float>.one
+            })
+    }
+    
+    // MARK: - Remove-on-tap Gesture
     static func createRemoveOnTapGesture(artefactManager: ArtefactManager) -> some Gesture {
-        return  TapGesture()
+        return TapGesture()
             .targetedToAnyEntity()
-            .onEnded{ value in
+            .onEnded { value in
                 Task{ @MainActor in
-                    if(!artefactManager.isErasing) {return}
+                    guard artefactManager.isErasing else { return }
                     let entity = value.entity
-                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
-                        guard var artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
-                        artefactManager.artefacts.removeAll(where: { $0 == entity})
-                        if artefact.parent is AnchorEntity {
-                            artefact = artefact.parent!
-                        }
-                        artefactManager.artefactEntities.removeAll { $0 == artefact }
-                        
+                    guard var artefact = getValidArtefact(from: entity, artefactManager: artefactManager) else { return }
+                    artefactManager.artefacts.removeAll(where: { $0 == entity})
+                    if artefact.parent is AnchorEntity {
+                        artefact = artefact.parent!
                     }
+                    artefactManager.artefactEntities.removeAll { $0 == artefact }
                 }
             }
     }
+    
+    // MARK: - Play-audio Gesture
     static func createPlayAudioGesture(artefactManager: ArtefactManager) -> some Gesture {
-        return  TapGesture()
+        return TapGesture()
             .targetedToAnyEntity()
             .onEnded{ value in
                 Task{ @MainActor in
-                    if(artefactManager.isErasing) {return}
-                    let entity = value.entity
-                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
-                        guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
-                        if(artefact.name != "AudioEntity") {return}
-                        
-                        if let audioComponent = artefact.components[AudioComponent.self] {
-                            var isPlaying = false
-                            if let playBack = audioComponent.playbackController {
-                                if playBack.isPlaying {
-                                    playBack.pause()
-                                }else{
-                                    isPlaying = true
-                                    playBack.play()
-                                }
-                            }else {
-                                guard let resource = try? AudioFileResource.load(contentsOf: audioComponent.url) else{print("smth went wrong"); return}
-                                artefact.components.set(AudioComponent(url: audioComponent.url, playbackController: artefact.playAudio(resource)))
+                    guard !artefactManager.isErasing else { return }
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
+                    
+                    if(artefact.name != "AudioEntity") {return}
+                    
+                    if let audioComponent = artefact.components[AudioComponent.self] {
+                        var isPlaying = false
+                        if let playBack = audioComponent.playbackController {
+                            if playBack.isPlaying {
+                                playBack.pause()
+                            } else {
                                 isPlaying = true
+                                playBack.play()
                             }
-                            updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying)
-                            
+                        } else {
+                            guard let resource = try? AudioFileResource.load(contentsOf: audioComponent.url) else{print("smth went wrong"); return}
+                            artefact.components.set(AudioComponent(url: audioComponent.url, playbackController: artefact.playAudio(resource)))
+                            isPlaying = true
                         }
-                        
-                    }
-                }
-            }
-    }
-    static func createPlayVideoGesture(artefactManager: ArtefactManager) -> some Gesture {
-        return  TapGesture()
-            .targetedToAnyEntity()
-            .onEnded{ value in
-                Task{ @MainActor in
-                    if(artefactManager.isErasing) {return}
-                    let entity = value.entity
-                    if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
-                        guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
-                        if(artefact.name != "VideoEntity") {return}
-                        
-                        if let videoComponent = artefact.components[VideoComponent.self] {
-                            var isPlaying = videoComponent.isPlaying
-                            if  videoComponent.player.currentTime() >= videoComponent.player.currentItem?.duration ?? .zero {
-                                videoComponent.player.seek(to: .zero)
-                                isPlaying = false
-                            }
-                            if !isPlaying {
-                                videoComponent.player.play()
-                                isPlaying = true
-                            }else if isPlaying {
-                                videoComponent.player.pause()
-                                isPlaying = false
-                            }
-                            artefact.components[VideoComponent.self] = VideoComponent(player: videoComponent.player, isPlaying: isPlaying)
-                        }
+                        updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying)
                         
                     }
                 }
             }
     }
     
+    // MARK: - Create-video Gesture
+    static func createPlayVideoGesture(artefactManager: ArtefactManager) -> some Gesture {
+        return TapGesture()
+            .targetedToAnyEntity()
+            .onEnded { value in
+                Task { @MainActor in
+                    guard !artefactManager.isErasing else { return }
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
+                        
+                    if (artefact.name != "VideoEntity") {return}
+                    
+                    if let videoComponent = artefact.components[VideoComponent.self] {
+                        var isPlaying = videoComponent.isPlaying
+                        if  videoComponent.player.currentTime() >= videoComponent.player.currentItem?.duration ?? .zero {
+                            videoComponent.player.seek(to: .zero)
+                            isPlaying = false
+                        }
+                        if !isPlaying {
+                            videoComponent.player.play()
+                            isPlaying = true
+                        } else if isPlaying {
+                            videoComponent.player.pause()
+                            isPlaying = false
+                        }
+                        artefact.components[VideoComponent.self] = VideoComponent(player: videoComponent.player, isPlaying: isPlaying)
+                    }
+                }
+            }
+    }
+
     static func updatePlayPauseIndicator(for entity: Entity, isPlaying: Bool) {
         // Remove existing indicator if any
         entity.children.removeAll(where: { $0.name == "PlayIndicator" || $0.name == "PauseIndicator" })
@@ -147,46 +217,36 @@ struct ArtefactGestures {
         entity.addChild(indicator)
     }
 
-    
+    // MARK: - Create-edit-text Gesture
     static func createEditTextGesture(artefactManager: ArtefactManager, appModel: AppModel, openWindow: OpenWindowAction) -> some Gesture {
         return TapGesture()
             .targetedToAnyEntity()
             .onEnded { value in
                 Task { @MainActor in
-                    if !artefactManager.isErasing {
-                        let entity = value.entity
-                        if checkIfIsArtefact(entity: entity, artefactManager: artefactManager) {
-                            guard let artefact: Entity = getArtefactEntity(entity: entity, artefactManager: artefactManager) else {return}
-                            guard artefact.name == "TextEntity" else {return}
-                            artefactManager.textToEditID = artefact.id
-                            openWindow(id: appModel.textEditorWindowID)
-                        }
-                    }
+                    guard !artefactManager.isErasing else { return }
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
+                    guard artefact.name == "TextEntity" else {return}
+                    artefactManager.textToEditID = artefact.id
+                    openWindow(id: appModel.textEditorWindowID)
                 }
             }
     }
+    
+    // MARK: - Helper Method
     @MainActor
-    private static func checkIfIsArtefact(entity: Entity, artefactManager: ArtefactManager) -> Bool {
-        if artefactManager.artefacts.contains(entity){return true}
-        else if artefactManager.artefacts.contains(entity.parent ?? Entity()) {return true}
-        
-        return false
-    }
-    @MainActor
-    private static func getArtefactEntity(entity: Entity, artefactManager: ArtefactManager) -> Entity? {
-        if let artefact: Entity = artefactManager.artefacts.first(where: { $0 == entity }) {
-            return artefact
-        }
-        else if let artefact: Entity = artefactManager.artefacts.first(where: { $0 == entity.parent }) {
-            return artefact
-        }
-        return nil
+    static func getValidArtefact(from entity: Entity, artefactManager: ArtefactManager) -> Entity? {
+        // Checks if the targeted entity is directly an artefact, or if its parent is an artefact
+        // Returns the matching artefact entity, or nil if neither the entity nor its parent are artefacts
+        return artefactManager.artefacts.first { $0 == entity } ?? artefactManager.artefacts.first { $0 == entity.parent }
     }
 }
 
+// MARK: - RealityView Extension
 extension RealityView {
     func installGestures(artefactManager: ArtefactManager, appModel: AppModel, openWindow: OpenWindowAction) -> some View {
-        simultaneousGesture(ArtefactGestures.createDragGesture(artefactManager: artefactManager))
+        self.simultaneousGesture(ArtefactGestures.createDragGesture(artefactManager: artefactManager))
+            .simultaneousGesture(ArtefactGestures.createRotateGesture(artefactManager: artefactManager))
+            .simultaneousGesture(ArtefactGestures.createMagnifyGesture(artefactManager: artefactManager))
             .simultaneousGesture(ArtefactGestures.createRemoveOnTapGesture(artefactManager: artefactManager))
             .simultaneousGesture(ArtefactGestures.createEditTextGesture(artefactManager: artefactManager, appModel: appModel, openWindow: openWindow))
             .simultaneousGesture(ArtefactGestures.createPlayAudioGesture(artefactManager: artefactManager))
