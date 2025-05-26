@@ -12,14 +12,12 @@ import RealityKitContent
 
 struct AddTextArtefact: View {
     @StateObject private var artefactManager = ArtefactManager.shared
-    
-    
-    @Binding var inputText: Bool
-    @Binding var text: String
+    @Binding var isTextInput: Bool
+    @Binding var textInput: String
     
     var body: some View {
         VStack{
-            Button(action: {inputText = true;}) {
+            Button(action: {isTextInput = true;}) {
                 Image(systemName: "keyboard")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
@@ -30,7 +28,7 @@ struct AddTextArtefact: View {
             .background(Circle().foregroundColor(.gray))
             .frame(width: 56, height: 56) // Total button size
         }.onDisappear(){
-            inputText = false
+            isTextInput = false
         }
     }    
 }
