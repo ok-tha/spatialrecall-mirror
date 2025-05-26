@@ -11,6 +11,7 @@ import Observation
 
 @MainActor
 class RoomTrackingManager: ObservableObject {
+    static let shared = RoomTrackingManager()
     private let session = ARKitSession()
     private let roomTracking = RoomTrackingProvider()
     
