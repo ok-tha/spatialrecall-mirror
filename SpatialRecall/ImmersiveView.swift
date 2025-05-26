@@ -21,12 +21,11 @@ struct ImmersiveView: View {
         ZStack {
             RealityView { content in
                 // Add initial RealityKit content here if needed
-                let anchor = AnchorEntity(world: SIMD3<Float>(0, 1.5, -1)) // 1.5 m hoch, 1 m vor dem User
-                    let mesh = MeshResource.generateText("Hallo Welt", extrusionDepth: 0.01, font: .systemFont(ofSize: 0.2))
-                    let material = SimpleMaterial(color: .blue, isMetallic: false)
-                    let model = ModelEntity(mesh: mesh, materials: [material])
-                    anchor.addChild(model)
-                    content.add(anchor)
+                let anchor = AnchorEntity(world: SIMD3<Float>(0, 1, -1))
+                let mesh = MeshResource.generateText("Placeholder for initial content", extrusionDepth: 0.01, font: .systemFont(ofSize: 0.05))
+                let material = SimpleMaterial(color: .blue, isMetallic: false)
+                let model = ModelEntity(mesh: mesh, materials: [material])
+                artefactManager.addArtefact(artefact: model, anchor: anchor)
             } update: { content in
                 // Synchronisiere Artefakte mit RealityKit-Szene
                 for artefact in artefactManager.artefactEntities {
