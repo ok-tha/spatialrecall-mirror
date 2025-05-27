@@ -37,9 +37,9 @@ struct ArtefactHudButton: View {
                             AddObjectArtefact()
                             AddVideoArtefact()
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(.regularMaterial)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(.thinMaterial)
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                     }
                                     
@@ -100,7 +100,7 @@ struct CreationButton: View {
                     .font(.system(size: 20))
                     .symbolRenderingMode(.hierarchical)
                     .frame(width: 44, height: 44)
-                    .background(Circle().fill(.thinMaterial))
+                    .background(Circle().fill(.thickMaterial))
                 Text(label)
                     .font(.system(size: 12))
             }.padding(.bottom, 5)
@@ -108,7 +108,6 @@ struct CreationButton: View {
         .labelStyle(.titleAndIcon)
         .buttonStyle(.plain)
         .padding(3)
-        .background(Capsule().fill(.ultraThinMaterial))
     }
 }
 
@@ -117,7 +116,7 @@ struct ModeToggle: View {
     @Namespace private var toggleNamespace
     
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 0) {
             ToggleOption(
                 icon: "pencil",
                 label: "Create",
@@ -133,12 +132,10 @@ struct ModeToggle: View {
         }
         .background(
             Capsule()
-                .fill(.ultraThinMaterial)
+                .fill(.thinMaterial)
                 .stroke(Color.secondary.opacity(0.15), lineWidth: 1)
         )
-        .padding(8)
-        .background(.regularMaterial)
-        .clipShape(Capsule())
+        
     }
 }
 
@@ -152,13 +149,13 @@ struct ToggleOption: View {
         Button(action: action) {
             HStack(spacing: 6) {
                 Image(systemName: icon)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                 
                 Text(label)
-                    .font(.system(size: 16, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(
                 Group {
                     if isSelected {
