@@ -23,7 +23,18 @@ struct AddObjectArtefact: View {
         .onReceive(artefactManager.$selectedObjectURL) { url in
             Task {
                 guard let url else { return }
-
+                
+                // Request access to security-scoped resource
+                guard url.startAccessingSecurityScopedResource() else {
+                    print("Failed to access security-scoped resource")
+                    return
+                }
+                
+                defer {
+                    // Always stop accessing when done
+                    url.stopAccessingSecurityScopedResource()
+                }
+                
                 do {
                     let modelEntity = try await ModelEntity(contentsOf: url)
                     let anchor = AnchorEntity(.head)
@@ -32,7 +43,6 @@ struct AddObjectArtefact: View {
                     anchor.addChild(modelEntity)
                     artefactManager.addArtefact(artefact: modelEntity, anchor: anchor)
                     artefactManager.selectedObjectURL = nil
-                    
                 } catch {
                     print("Failed to create ModelEntity: \(error)")
                 }
