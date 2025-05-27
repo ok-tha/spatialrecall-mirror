@@ -24,9 +24,6 @@ struct TextInputBox: View {
                 .background(.white.opacity(0.9))
                 .foregroundColor(.black)
                 .cornerRadius(12)
-                .onSubmit {
-                    onSubmit()
-                }
             
             HStack(spacing: 12) {
                 Button("Cancel") {
@@ -36,25 +33,19 @@ struct TextInputBox: View {
                     }
                 }                
                 Button("Add") {
-                    onSubmit()
+                    addText(textInput: textInput)
+                    withAnimation {
+                        isTextInput = false
+                        textInput = ""
+                    }
                 }
-                .disabled(textInput.isEmpty)
+                .disabled(textInput.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
         .padding(20)
         .frame(width: 300)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
-    
-    func onSubmit() {
-        if !textInput.isEmpty {
-            addText(textInput: textInput)
-            withAnimation {
-                isTextInput = false
-                textInput = ""
-            }
-        }
     }
     
     func addText(textInput: String) {

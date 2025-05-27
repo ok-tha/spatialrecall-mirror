@@ -54,7 +54,7 @@ struct ArtefactHudButton: View {
 
 func setupAnchors(content: RealityViewContent, attachments: RealityViewAttachments) {
     let headAnchor = AnchorEntity(.head)
-    headAnchor.position = [0, -0.1, -0.5]
+    headAnchor.position = [0, -0.1, -0.8]
     content.add(headAnchor)
 
     guard let textInputAttachment = attachments.entity(for: "TextInputBox") else { return }
