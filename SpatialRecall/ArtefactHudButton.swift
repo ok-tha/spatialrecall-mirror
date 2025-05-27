@@ -15,37 +15,7 @@ struct ArtefactHudButton: View {
     var body: some View {
         RealityView { content, attachments in
             
-            let headAnchor = AnchorEntity(.head)
-            headAnchor.position = [0, -0.1, -0.5]
-            content.add(headAnchor)
-            
-            guard let textInputAttachment = attachments.entity(for: "TextInputBox") else { return }
-            textInputAttachment.components.set(BillboardComponent())
-            headAnchor.addChild(textInputAttachment)
-                                    
-            // Check if running on actual device vs simulator/preview
-            let isRunningOnDevice = ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] == nil        
-            
-            guard let hudAttachment = attachments.entity(for: "HUD") else { return }
-            
-            if isRunningOnDevice {
-                // Running on actual Apple Vision Pro - attach HUD to palm
-                let palmAnchor = AnchorEntity(.hand(.left, location: .palm))
-                palmAnchor.position = [0, 0, 0.2] // Slightly next to palm
-                let rotationX = simd_quatf(angle: -Float.pi/2, axis: [1, 0, 0])
-                let rotationZ = simd_quatf(angle: Float.pi/2, axis: [0, 0, 1])
-                let rotation3 = simd_quatf(angle: Float.pi, axis: [1, 0, 0])
-                let rotation4 = simd_quatf(angle: Float.pi, axis: [0, 1, 0])
-                let rotation5 = simd_quatf(angle: -Float.pi/10, axis: [0, 1, 0])
-                let rotation6 = simd_quatf(angle: Float.pi/8, axis: [1, 0, 0])
-                palmAnchor.orientation = rotationX * rotationZ * rotation3 * rotation4 * rotation5 * rotation6
-                content.add(palmAnchor)
-                palmAnchor.addChild(hudAttachment)
-            } else {
-                // Running in Simulator/Preview - attach HUD to head anchor
-                hudAttachment.position = [0, -0.2, 0]
-                headAnchor.addChild(hudAttachment)
-            }
+            setupAnchors(content: content, attachments: attachments)
             
         } attachments: {
             Attachment(id: "TextInputBox") {
@@ -80,6 +50,42 @@ struct ArtefactHudButton: View {
     }
 }
 
+// MARK: - Anchor Setup
+
+func setupAnchors(content: RealityViewContent, attachments: RealityViewAttachments) {
+    let headAnchor = AnchorEntity(.head)
+    headAnchor.position = [0, -0.1, -0.5]
+    content.add(headAnchor)
+
+    guard let textInputAttachment = attachments.entity(for: "TextInputBox") else { return }
+    textInputAttachment.components.set(BillboardComponent())
+    headAnchor.addChild(textInputAttachment)
+                            
+    // Check if running on actual device vs simulator/preview
+    let isRunningOnDevice = ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] == nil
+
+    guard let hudAttachment = attachments.entity(for: "HUD") else { return }
+
+    if isRunningOnDevice {
+        // Running on actual Apple Vision Pro - attach HUD to palm
+        let palmAnchor = AnchorEntity(.hand(.left, location: .palm))
+        palmAnchor.position = [0, 0, 0.2] // Slightly next to palm
+        let rotationX = simd_quatf(angle: -Float.pi/2, axis: [1, 0, 0])
+        let rotationZ = simd_quatf(angle: Float.pi/2, axis: [0, 0, 1])
+        let rotation3 = simd_quatf(angle: Float.pi, axis: [1, 0, 0])
+        let rotation4 = simd_quatf(angle: Float.pi, axis: [0, 1, 0])
+        let rotation5 = simd_quatf(angle: -Float.pi/10, axis: [0, 1, 0])
+        let rotation6 = simd_quatf(angle: Float.pi/8, axis: [1, 0, 0])
+        palmAnchor.orientation = rotationX * rotationZ * rotation3 * rotation4 * rotation5 * rotation6
+        content.add(palmAnchor)
+        palmAnchor.addChild(hudAttachment)
+    } else {
+        // Running in Simulator/Preview - attach HUD to head anchor
+        hudAttachment.position = [0, -0.2, 0]
+        headAnchor.addChild(hudAttachment)
+    }
+}
+
 // MARK: - Supporting Views
 
 struct CreationButton: View {
@@ -99,7 +105,7 @@ struct CreationButton: View {
                     .font(.system(size: 12))
             }.padding(.bottom, 5)
         }
-        .labelStyle(.titleAndIcon)        
+        .labelStyle(.titleAndIcon)
         .buttonStyle(.plain)
         .padding(3)
         .background(Capsule().fill(.ultraThinMaterial))
