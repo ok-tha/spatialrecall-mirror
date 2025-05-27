@@ -12,7 +12,6 @@ struct TextInputBox: View {
     @StateObject private var artefactManager = ArtefactManager.shared
     @Binding var isTextInput: Bool
     @Binding var textInput: String
-    @FocusState private var isTextEditorFocused: Bool
     
     var body: some View {
         VStack(spacing: 12) {
@@ -25,7 +24,6 @@ struct TextInputBox: View {
                 .background(.white.opacity(0.9))
                 .foregroundColor(.black)
                 .cornerRadius(12)
-                .focused($isTextEditorFocused)
                 .onSubmit {
                     onSubmit()
                 }
@@ -47,9 +45,6 @@ struct TextInputBox: View {
         .frame(width: 300)
         .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
-        .onAppear {
-            isTextEditorFocused = true
-        }
     }
     
     func onSubmit() {
