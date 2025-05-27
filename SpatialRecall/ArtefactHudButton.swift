@@ -14,21 +14,29 @@ struct ArtefactHudButton: View {
     
     var body: some View {
         RealityView { content, attachments in
-            let headAnchor = AnchorEntity(.head)
-            headAnchor.position = [0, -0.2, -0.5]
             
+            let headAnchor = AnchorEntity(.head)
+            headAnchor.position = [0, -0.1, -0.5]
             content.add(headAnchor)
             
-            guard let hudAttachment = attachments.entity(for: "HUD") else { return }
             guard let textInputAttachment = attachments.entity(for: "TextInputBox") else { return }
-                        
-            // Set Billboard components for both attachments to ensure they face the camera
-            hudAttachment.components.set(BillboardComponent())
             textInputAttachment.components.set(BillboardComponent())
-            textInputAttachment.position = [0, 0.2, 0]
-            
-            headAnchor.addChild(hudAttachment)
             headAnchor.addChild(textInputAttachment)
+                                    
+            let palmAnchor = AnchorEntity(.hand(.left, location: .palm))
+            palmAnchor.position = [0, 0, 0.2] // Slightly next to palm
+            let rotationX = simd_quatf(angle: -Float.pi/2, axis: [1, 0, 0])
+            let rotationZ = simd_quatf(angle: Float.pi/2, axis: [0, 0, 1])
+            let rotation3 = simd_quatf(angle: Float.pi, axis: [1, 0, 0])
+            let rotation4 = simd_quatf(angle: Float.pi, axis: [0, 1, 0])
+            let rotation5 = simd_quatf(angle: -Float.pi/10, axis: [0, 1, 0])
+            let rotation6 = simd_quatf(angle: Float.pi/8, axis: [1, 0, 0])
+            palmAnchor.orientation = rotationX * rotationZ * rotation3 * rotation4 * rotation5 * rotation6
+            content.add(palmAnchor)
+            
+            guard let hudAttachment = attachments.entity(for: "HUD") else { return }
+            palmAnchor.addChild(hudAttachment)
+            
         } attachments: {
             Attachment(id: "TextInputBox") {
                 if isTextInput {
