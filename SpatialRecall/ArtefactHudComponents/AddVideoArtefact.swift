@@ -21,19 +21,11 @@ struct AddVideoArtefact: View {
     @State private var isPlaying = false
 
     var body: some View {
-        VStack {
-            Button(action: {
-                openWindow(id: appModel.videoPickerWindowID)
-            }) {
-                Image(systemName: "movieclapper")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32)
-                    .padding()
-                    .foregroundColor(.white)
-            }
-                .background(Circle().foregroundColor(.gray))
-                .frame(width: 56, height: 56)        }
+        CreationButton(
+            icon: "play.rectangle",
+            label: "Video",
+            action: { openWindow(id: appModel.videoPickerWindowID) }
+        )
         .onReceive(artefactManager.$selectedVideoURL) { url in
             Task{
                 guard let url else { return }

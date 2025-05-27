@@ -19,16 +19,11 @@ struct AddAudioArtefact: View {
     @State private var selectedAudioURL: URL?
 
     var body: some View {
-        Button(action: { openWindow(id: appModel.audioPickerWindowID) }) {
-            Image(systemName: "waveform")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 32, height: 32)
-                .padding()
-                .foregroundColor(.white)
-        }
-        .background(Circle().foregroundColor(.gray))
-        .frame(width: 56, height: 56)
+        CreationButton(
+            icon: "waveform",
+            label: "Audio",
+            action: { openWindow(id: appModel.audioPickerWindowID) }
+        )
         .onReceive(artefactManager.$selectedAudioURL) { url in
             Task {
                 guard let url else { return }
@@ -48,7 +43,6 @@ struct AddAudioArtefact: View {
                 ArtefactGestures.updatePlayPauseIndicator(for: sphere, isPlaying: false)
                 
                 artefactManager.selectedAudioURL = nil
-                
                 
                 artefactManager.addArtefact(artefact: sphere, anchor: anchor)
             }

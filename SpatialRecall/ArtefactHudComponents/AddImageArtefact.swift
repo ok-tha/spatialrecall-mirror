@@ -18,16 +18,11 @@ struct AddImageArtefact: View {
     @State private var image: Image?
     
     var body: some View {
-        Button(action: {openWindow(id: appModel.imagePickerWindowID)}) {
-            Image(systemName: "photo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 32, height: 32)
-                .padding()
-                .foregroundColor(.white)
-        }
-        .background(Circle().foregroundColor(.gray))
-        .frame(width: 56, height: 56) // Total button size
+        CreationButton(
+            icon: "photo",
+            label: "Image",
+            action: { openWindow(id: appModel.imagePickerWindowID) }
+        )
         .onReceive(artefactManager.$selectedImage) { newItem in
             guard let newItem = newItem else { return }
             Task {

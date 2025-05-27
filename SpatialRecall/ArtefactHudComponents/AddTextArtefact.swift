@@ -16,21 +16,14 @@ struct AddTextArtefact: View {
     @Binding var textInput: String
     
     var body: some View {
-        VStack{
-            Button(action: {isTextInput = true;}) {
-                Image(systemName: "keyboard")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 32, height: 32)
-                    .padding()
-                    .foregroundColor(.white)
-            }
-            .background(Circle().foregroundColor(.gray))
-            .frame(width: 56, height: 56) // Total button size
-        }.onDisappear(){
-            isTextInput = false
+        CreationButton(
+            icon: "text.bubble",
+            label: "Text",
+            action: { withAnimation { isTextInput = true } }
+        ).onDisappear() {
+            isTextInput = false // Closes the text input when mode toggled to erasing
         }
-    }    
+    }
 }
 
 public func generateTextEntity(text: String, font: UIFont? = .boldSystemFont(ofSize: 0.01), color: UIColor? = .black) -> ModelEntity {
@@ -40,7 +33,6 @@ public func generateTextEntity(text: String, font: UIFont? = .boldSystemFont(ofS
 }
 
 public func resizeBox(box: ModelEntity,textEntity: ModelEntity){
-    
     if let textBounds = textEntity.model?.mesh.bounds {
         let textSize = textBounds.extents
         

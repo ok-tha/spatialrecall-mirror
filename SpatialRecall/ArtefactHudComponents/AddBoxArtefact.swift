@@ -12,16 +12,11 @@ struct AddBoxArtefact: View {
     @StateObject private var artefactManager = ArtefactManager.shared
     
     var body: some View {
-        Button(action: {addBox()}) {
-            Image(systemName: "wrench.and.screwdriver")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 32, height: 32)
-                .padding()
-                .foregroundColor(.white)
-        }
-        .background(Circle().foregroundColor(.gray))
-        .frame(width: 56, height: 56) // Total button size
+        CreationButton(
+            icon: "cube",
+            label: "Box",
+            action: addBox
+        )
     }
     
     func addBox() {

@@ -12,32 +12,59 @@ struct TextInputBox: View {
     @StateObject private var artefactManager = ArtefactManager.shared
     @Binding var isTextInput: Bool
     @Binding var textInput: String
+    @FocusState private var isTextEditorFocused: Bool
     
     var body: some View {
-        if isTextInput {            
-            VStack {
-                Text("Input textInput here...")
-                TextEditor(text: $textInput)
-                    .background(Color.white.opacity(0.5))
-                    .cornerRadius(8)
-                
-                HStack{
-                    Button( action: {isTextInput = false}, label: {Text("Cancel")})
-                    Button( action: {addText(textInput: textInput)}, label: {Text("Save")})
+        VStack(spacing: 12) {
+            Text("Add Text")
+                .font(.headline)
+            
+            TextEditor(text: $textInput)
+                .frame(minHeight: 80, maxHeight: 160)
+                .padding(12)
+                .background(.white.opacity(0.9))
+                .foregroundColor(.black)
+                .cornerRadius(12)
+                .focused($isTextEditorFocused)
+                .onSubmit {
+                    onSubmit()
                 }
+            
+            HStack(spacing: 12) {
+                Button("Cancel") {
+                    withAnimation {
+                        isTextInput = false
+                        textInput = ""
+                    }
+                }                
+                Button("Add") {
+                    onSubmit()
+                }
+                .disabled(textInput.isEmpty)
             }
-            .frame(width: 200, height: 200)
-            .padding()
-            .background(Color.gray.opacity(0.9))
-            .cornerRadius(45)
+        }
+        .padding(20)
+        .frame(width: 300)
+        .background(.thinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .onAppear {
+            isTextEditorFocused = true
+        }
+    }
+    
+    func onSubmit() {
+        if !textInput.isEmpty {
+            addText(textInput: textInput)
+            withAnimation {
+                isTextInput = false
+                textInput = ""
+            }
         }
     }
     
     func addText(textInput: String) {
         let trimmedText = textInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else { return }
-        
-        isTextInput = false
         
         let anchor = AnchorEntity(.head)
         anchor.anchoring.trackingMode = .once
@@ -62,8 +89,5 @@ struct TextInputBox: View {
         
         resizeBox(box: box, textEntity: textEntity)
         artefactManager.addArtefact(artefact: containerEntity ,anchor: anchor)
-        
-        // Clear textInput after successful addition
-        self.textInput = ""
     }
 }

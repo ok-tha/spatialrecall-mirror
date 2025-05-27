@@ -15,18 +15,11 @@ struct AddObjectArtefact: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        Button(action: {
-            openWindow(id: appModel.objectPickerWindowID)
-        }) {
-            Image(systemName: "cube")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 32, height: 32)
-                .padding()
-                .foregroundColor(.white)
-        }
-        .background(Circle().foregroundColor(.gray))
-        .frame(width: 56, height: 56)
+        CreationButton(
+            icon: "cube.transparent",
+            label: "Object",
+            action: { openWindow(id: appModel.objectPickerWindowID) }
+        )
         .onReceive(artefactManager.$selectedObjectURL) { url in
             Task {
                 guard let url else { return }
