@@ -16,6 +16,7 @@ class RoomTrackingManager: ObservableObject {
     private let roomTracking = RoomTrackingProvider()
     
     @Published var currentRoomAnchor: RoomAnchor?
+    @Published var isRoomTrackingSupported = false
     
     init() {
         Task {
@@ -25,6 +26,12 @@ class RoomTrackingManager: ObservableObject {
     }
     
     func startSession() async {
+        guard RoomTrackingProvider.isSupported else {
+            print("Room Tracking wird auf diesem Gerät nicht unterstützt (bspw. Simulator)")
+            isRoomTrackingSupported = false
+            return
+        }
+        
         do {
             try await session.run([roomTracking])
             print("Room Tracking Session gestartet")
