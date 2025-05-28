@@ -12,17 +12,15 @@ import RealityKitContent
 
 struct AddTextArtefact: View {
     @StateObject private var artefactManager = ArtefactManager.shared
-    @Binding var isTextInput: Bool
-    @Binding var textInput: String
+    @State private var appModel = AppModel()
+    @Environment(\.openWindow) private var openWindow
     
     var body: some View {
         CreationButton(
             icon: "text.bubble",
             label: "Text",
-            action: { withAnimation { isTextInput = true } }
-        ).onDisappear() {
-            isTextInput = false // Closes the text input when mode toggled to erasing
-        }
+            action: { openWindow(id:appModel.textEditorWindowID) }
+        )
     }
 }
 

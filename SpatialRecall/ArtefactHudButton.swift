@@ -18,21 +18,13 @@ struct ArtefactHudButton: View {
             setupAnchors(content: content, attachments: attachments)
             
         } attachments: {
-            Attachment(id: "TextInputBox") {
-                if isTextInput {
-                    TextInputBox(
-                        isTextInput: $isTextInput,
-                        textInput: $textInput,
-                    )
-                }
-            }
             Attachment(id: "HUD") {
                 VStack(spacing: 10) {
                     if !artefactManager.isErasing {
                         HStack(spacing: 8) {
                             AddBoxArtefact()
                             AddImageArtefact()
-                            AddTextArtefact(isTextInput: $isTextInput, textInput: $textInput)
+                            AddTextArtefact()
                             AddAudioArtefact()
                             AddObjectArtefact()
                             AddVideoArtefact()
@@ -53,14 +45,6 @@ struct ArtefactHudButton: View {
 // MARK: - Anchor Setup
 
 func setupAnchors(content: RealityViewContent, attachments: RealityViewAttachments) {
-    let headAnchor = AnchorEntity(.head)
-    headAnchor.position = [0, -0.1, -0.8]
-    content.add(headAnchor)
-
-    guard let textInputAttachment = attachments.entity(for: "TextInputBox") else { return }
-    textInputAttachment.components.set(BillboardComponent())
-    headAnchor.addChild(textInputAttachment)
-                            
     // Check if running on actual device vs simulator/preview
     let isRunningOnDevice = ProcessInfo.processInfo.environment["SIMULATOR_DEVICE_NAME"] == nil
 
@@ -81,6 +65,10 @@ func setupAnchors(content: RealityViewContent, attachments: RealityViewAttachmen
         palmAnchor.addChild(hudAttachment)
     } else {
         // Running in Simulator/Preview - attach HUD to head anchor
+        let headAnchor = AnchorEntity(.head)
+        headAnchor.position = [0, -0.1, -0.8]
+        content.add(headAnchor)
+        
         hudAttachment.position = [0, -0.2, 0]
         headAnchor.addChild(hudAttachment)
     }
