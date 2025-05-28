@@ -22,7 +22,7 @@ struct TextArtefactWindow: View {
                 .font(.headline)
             
             TextEditor(text: $text)
-                .frame(minHeight: 80, maxHeight: 160)
+                .frame(minHeight: 80)
                 .padding(12)
                 .background(.white.opacity(0.9))
                 .foregroundColor(.black)
@@ -39,8 +39,6 @@ struct TextArtefactWindow: View {
             }
         }
         .padding(20)
-        .frame(width: 300)
-        .background(.thinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 

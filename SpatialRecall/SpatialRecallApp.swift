@@ -24,7 +24,7 @@ struct SpatialRecallApp: App {
             TextArtefactWindow()
             ReactivateImmersiveSpaceButton()
                 .environment(appModel)
-        }.defaultSize(width: 400, height: 500)
+        }.defaultSize(width: 400, height: 350)
         WindowGroup(id: appModel.audioPickerWindowID) {
             AudioPickerWindow()
                 .environment(appModel)
