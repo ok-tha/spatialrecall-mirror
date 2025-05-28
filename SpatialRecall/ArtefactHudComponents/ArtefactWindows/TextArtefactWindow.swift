@@ -16,11 +16,11 @@ struct TextArtefactWindow: View {
     @StateObject var artefactManager = ArtefactManager.shared
     
     @State private var text = ""
+    
     var body: some View {
         VStack(spacing: 12) {
-            Text("Add Text")
+            Text(artefactManager.textToEditID != nil ? "Edit Text" : "Add Text")
                 .font(.headline)
-            
             TextEditor(text: $text)
                 .frame(minHeight: 80)
                 .padding(12)
@@ -40,6 +40,9 @@ struct TextArtefactWindow: View {
         }
         .padding(20)
         .clipShape(RoundedRectangle(cornerRadius: 16))
+        .onAppear {
+            text = getCurrentText()
+        }
     }
 
     
@@ -47,7 +50,6 @@ struct TextArtefactWindow: View {
     func getCurrentText() -> String {
         guard let artefact = artefactManager.artefacts.first(where: {$0.id == artefactManager.textToEditID}) else {
             artefactManager.textToEditID = nil
-            dismiss()
             return ""
         }
         for child in artefact.children {

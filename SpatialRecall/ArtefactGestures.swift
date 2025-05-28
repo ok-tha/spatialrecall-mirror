@@ -110,6 +110,11 @@ struct ArtefactGestures {
                     guard artefactManager.isErasing else { return }
                     let entity = value.entity
                     guard var artefact = getValidArtefact(from: entity, artefactManager: artefactManager) else { return }
+                    if artefact.name == "TextEntity" {
+                        if artefactManager.textToEditID == artefact.id {
+                            artefactManager.textToEditID = nil
+                        }
+                    }
                     artefactManager.artefacts.removeAll(where: { $0 == entity})
                     if artefact.parent is AnchorEntity {
                         artefact = artefact.parent!
