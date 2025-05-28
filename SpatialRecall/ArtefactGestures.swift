@@ -126,11 +126,25 @@ struct ArtefactGestures {
             .onEnded{ value in
                 Task{ @MainActor in
                     guard !artefactManager.isErasing else { return }
-                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager) else { return }
-                    
-                    if(artefact.name != "AudioEntity") {return}
-                    
-                    if let audioComponent = artefact.components[AudioComponent.self] {
+                    guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager),
+                          artefact.name == "AudioEntity",
+                          let audioComponent = artefact.components[AudioComponent.self]
+                    else { return }
+
+                    let url = audioComponent.url                 // the security-scoped URL
+                    let hasScope = url.startAccessingSecurityScopedResource()
+                    defer { if hasScope { url.stopAccessingSecurityScopedResource() } }
+
+                    do {
+                        // Optionally cache inside the app sandbox
+                        let sandboxURL = FileManager.default.temporaryDirectory
+                            .appendingPathComponent(url.lastPathComponent)
+
+                        if !FileManager.default.fileExists(atPath: sandboxURL.path) {
+                            try FileManager.default.copyItem(at: url, to: sandboxURL)
+                        }
+
+                        // Either reuse an existing controller or create one
                         var isPlaying = false
                         if let playBack = audioComponent.playbackController {
                             if playBack.isPlaying {
@@ -139,14 +153,19 @@ struct ArtefactGestures {
                                 isPlaying = true
                                 playBack.play()
                             }
+                            
                         } else {
-                            guard let resource = try? AudioFileResource.load(contentsOf: audioComponent.url) else{print("smth went wrong"); return}
-                            artefact.components.set(AudioComponent(url: audioComponent.url, playbackController: artefact.playAudio(resource)))
+                            let resource = try AudioFileResource.load(contentsOf: sandboxURL) // RealityKit 1+
+                            let controller = artefact.playAudio(resource)
+                            artefact.components.set(AudioComponent(url: url, playbackController: controller))
                             isPlaying = true
                         }
                         updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying)
-                        
+
+                    } catch {
+                        print("Audio load failed: \(error)")
                     }
+
                 }
             }
     }
