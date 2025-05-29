@@ -66,10 +66,9 @@ func setupAnchors(content: RealityViewContent, attachments: RealityViewAttachmen
     } else {
         // Running in Simulator/Preview - attach HUD to head anchor
         let headAnchor = AnchorEntity(.head)
-        headAnchor.position = [0, -0.1, -0.8]
+        headAnchor.position = [0, -0.2, -0.4]
         content.add(headAnchor)
         
-        hudAttachment.position = [0, -0.2, 0]
         headAnchor.addChild(hudAttachment)
     }
 }
@@ -156,4 +155,12 @@ struct ToggleOption: View {
         .buttonStyle(.plain)
         .clipShape(Capsule())
     }
+}
+
+// MARK: - Preview
+
+#Preview(immersionStyle: .mixed) {
+    ImmersiveView()
+        .environment(AppModel())
+        .environmentObject(RoomTrackingManager()) // Für Preview
 }

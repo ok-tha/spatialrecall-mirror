@@ -22,3 +22,9 @@ struct ImagePickerWindow: View {
         .padding()
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    ImagePickerWindow()
+}

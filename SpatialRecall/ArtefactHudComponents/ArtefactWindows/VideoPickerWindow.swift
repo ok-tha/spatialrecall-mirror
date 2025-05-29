@@ -82,3 +82,9 @@ struct Movie: Transferable {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    VideoPickerWindow()
+}

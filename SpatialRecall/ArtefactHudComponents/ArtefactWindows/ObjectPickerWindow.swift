@@ -52,3 +52,9 @@ extension UTType {
     static let ply = UTType(filenameExtension: "ply")!
     
 }
+
+// MARK: - Preview
+
+#Preview {
+    ObjectPickerWindow()
+}

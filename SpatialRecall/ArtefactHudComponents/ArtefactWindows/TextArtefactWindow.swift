@@ -130,3 +130,9 @@ struct TextArtefactWindow: View {
         artefactManager.addArtefact(artefact: containerEntity ,anchor: anchor)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    TextArtefactWindow()
+}

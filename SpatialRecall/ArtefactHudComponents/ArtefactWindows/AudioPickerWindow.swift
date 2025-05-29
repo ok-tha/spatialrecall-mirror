@@ -43,3 +43,9 @@ struct AudioPickerWindow: View {
         }
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    AudioPickerWindow()
+}
