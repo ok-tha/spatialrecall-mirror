@@ -24,9 +24,10 @@ struct AddTextArtefact: View {
     }
 }
 
-public func generateTextEntity(text: String, font: UIFont? = .boldSystemFont(ofSize: 0.01), color: UIColor? = .black) -> ModelEntity {
-    let textMesh = MeshResource.generateText(text, extrusionDepth: 0.0001, font: font!, containerFrame: CGRect(x:0,y:0, width: 0.5, height: 0.5), alignment: .center, lineBreakMode: .byWordWrapping)
-    let textMaterial = SimpleMaterial(color: color!, isMetallic: false)
+public func generateTextEntity(text: String) -> ModelEntity {
+    let font: UIFont = .init(name: "MarkerFelt-Thin", size: 0.01) ?? .boldSystemFont(ofSize: 0.01)
+    let textMesh = MeshResource.generateText(text, extrusionDepth: 0.0001, font: font, containerFrame: CGRect(x:0,y:0, width: 0.5, height: 0.5), alignment: .center, lineBreakMode: .byWordWrapping)
+    let textMaterial = SimpleMaterial(color: .black, isMetallic: false)
     return ModelEntity(mesh: textMesh, materials: [textMaterial])
 }
 

@@ -115,7 +115,7 @@ struct TextArtefactWindow: View {
         let box = ModelEntity(mesh: mesh, materials: [material])
         box.components.set(TagComponent(tag: "BackgroundBox"))
         
-        let textEntity = generateTextEntity(text: trimmedText, font: .init(name: "MarkerFelt-Thin", size: 0.01))
+        let textEntity = generateTextEntity(text: trimmedText)
         textEntity.name = trimmedText
         textEntity.components.set(TagComponent(tag: "TextField"))
         
