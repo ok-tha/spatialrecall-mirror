@@ -140,4 +140,25 @@ class ArtefactManager: ObservableObject {
         
         selectedVideoURL = nil
     }
+    
+    public func addAudio(url: URL) {
+        print("Adding Audio", url.lastPathComponent)
+        let anchor = AnchorEntity(.head)
+        anchor.anchoring.trackingMode = .once
+        anchor.position = SIMD3<Float>(0, 0, -1)
+
+        let mesh = MeshResource.generateSphere(radius: 0.1)
+        let material = SimpleMaterial(color: .red, isMetallic: true)
+        let sphere = ModelEntity(mesh: mesh, materials: [material])
+        
+        sphere.name = "AudioEntity"
+        sphere.components.set(AudioComponent(url: url))
+        sphere.components.set(BillboardComponent())
+        
+        ArtefactGestures.updatePlayPauseIndicator(for: sphere, isPlaying: false)
+        
+        selectedAudioURL = nil
+        
+        addArtefact(artefact: sphere, anchor: anchor)
+    }
 }

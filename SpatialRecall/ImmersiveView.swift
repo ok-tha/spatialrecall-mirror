@@ -67,7 +67,7 @@ struct ImmersiveView: View {
 
     
     func loadTextArtefact() {
-        artefactManager.addText(text: "Test init")
+        artefactManager.addText(text: "Example text artefact")
     }
     
     func loadImageArtefact() {
@@ -98,7 +98,13 @@ struct ImmersiveView: View {
     }
     
     func loadAudioArtefact() {
-        
+        Task {
+            guard let url = Bundle.main.url(forResource: "morning-rain", withExtension: "mp3") else {
+                print( "File 'morning-rain' not found" )
+                return
+            }
+            artefactManager.addAudio(url: url)
+        }
     }
 }
 

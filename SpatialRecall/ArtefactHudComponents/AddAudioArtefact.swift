@@ -25,27 +25,8 @@ struct AddAudioArtefact: View {
             action: { openWindow(id: appModel.audioPickerWindowID) }
         )
         .onReceive(artefactManager.$selectedAudioURL) { url in
-            Task {
-                guard let url else { return }
-                print("Adding Audio", url.lastPathComponent)
-                let anchor = AnchorEntity(.head)
-                anchor.anchoring.trackingMode = .once
-                anchor.position = SIMD3<Float>(0, 0, -1)
-
-                let mesh = MeshResource.generateSphere(radius: 0.1)
-                let material = SimpleMaterial(color: .red, isMetallic: true)
-                let sphere = ModelEntity(mesh: mesh, materials: [material])
-                
-                sphere.name = "AudioEntity"
-                sphere.components.set(AudioComponent(url: url))
-                sphere.components.set(BillboardComponent())
-                
-                ArtefactGestures.updatePlayPauseIndicator(for: sphere, isPlaying: false)
-                
-                artefactManager.selectedAudioURL = nil
-                
-                artefactManager.addArtefact(artefact: sphere, anchor: anchor)
-            }
+            guard let url else { return }
+            artefactManager.addAudio(url: url)
         }
     }
 }
