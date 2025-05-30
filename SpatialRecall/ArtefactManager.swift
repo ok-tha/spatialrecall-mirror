@@ -64,4 +64,30 @@ class ArtefactManager: ObservableObject {
         resizeBox(box: box, textEntity: textEntity)
         addArtefact(artefact: containerEntity ,anchor: anchor)
     }
+    
+    public func addImage(data: Data) async {
+        let cgImage = UIImage(data: data)?.cgImage
+        if let cgImage {
+            let proportionalWidth = Float(cgImage.width) / Float(cgImage.height)
+            
+            let imageHeight: Float = 0.3
+            
+            guard let texture = try? await TextureResource(image: cgImage, options: .init(semantic: .color)) else {return}
+            
+            var frontMaterial = UnlitMaterial()
+            frontMaterial.color = .init(tint: .white, texture: .init(texture))
+            let mesh = MeshResource.generateBox(width: proportionalWidth*imageHeight, height: imageHeight, depth: 0.001, splitFaces: true)
+            let restMaterial = SimpleMaterial(color: .black, isMetallic: false)
+            let image = ModelEntity(mesh: mesh, materials: [frontMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
+            
+            
+            let anchor = AnchorEntity(.head)
+            anchor.anchoring.trackingMode = .once
+            anchor.position = SIMD3<Float>(0,0,-1)
+            
+            addArtefact(artefact: image, anchor: anchor)
+            
+            selectedImage = nil
+        }
+    }
 }

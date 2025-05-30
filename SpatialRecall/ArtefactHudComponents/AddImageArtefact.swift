@@ -27,40 +27,9 @@ struct AddImageArtefact: View {
             guard let newItem = newItem else { return }
             Task {
                 if let data = try? await newItem.loadTransferable(type: Data.self) {
-                    if let cgImage = UIImage(data: data)?.cgImage {
-                        let proportionalWidth = Float(cgImage.width) / Float(cgImage.height)
-                        
-                        let imageHeight: Float = 0.3
-                        
-                        guard let texture = try? await TextureResource(image: cgImage, options: .init(semantic: .color)) else {return}
-                        
-                        var frontMaterial = UnlitMaterial()
-                        frontMaterial.color = .init(tint: .white, texture: .init(texture))
-                        let mesh = MeshResource.generateBox(width: proportionalWidth*imageHeight, height: imageHeight, depth: 0.001, splitFaces: true)
-                        let restMaterial = SimpleMaterial(color: .black, isMetallic: false)
-                        let image = ModelEntity(mesh: mesh, materials: [frontMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
-                        
-                        
-                        let anchor = AnchorEntity(.head)
-                        anchor.anchoring.trackingMode = .once
-                        anchor.position = SIMD3<Float>(0,0,-1)
-                        
-                        artefactManager.addArtefact(artefact: image, anchor: anchor)
-                        
-                        artefactManager.selectedImage = nil
-                    }
+                    await artefactManager.addImage(data: data)
                 }
             }
         }
-    }
-    func gcd(_ a: Int, _ b: Int) -> Int {
-        var a = a
-        var b = b
-        while b != 0 {
-            let temp = b
-            b = a % b
-            a = temp
-        }
-        return a
     }
 }
