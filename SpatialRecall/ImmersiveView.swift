@@ -62,7 +62,7 @@ struct ImmersiveView: View {
         loadImageArtefact()
         loadObjectArtefact()
         loadVideoArtefact()
-        loadAudioArtefact()        
+        loadAudioArtefact()
     }
 
     
@@ -78,7 +78,13 @@ struct ImmersiveView: View {
     }
     
     func loadObjectArtefact() {
-        
+        Task {
+            guard let url = Bundle.main.url(forResource: "pancakes", withExtension: "usdz") else {
+                print( "File 'pancakes' not found" )
+                return
+            }
+            await artefactManager.addObject(url: url)
+        }
     }
     
     func loadVideoArtefact() {
