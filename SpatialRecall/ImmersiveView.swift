@@ -13,19 +13,13 @@ struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
     @Environment(\.openWindow) var openWindow
     @EnvironmentObject var roomTrackingManager: RoomTrackingManager
-
     @StateObject private var artefactManager = ArtefactManager.shared
 
     var body: some View {
         ArtefactHudButton()
         ZStack {
             RealityView { content in
-                // Add initial RealityKit content here if needed
-                let anchor = AnchorEntity(world: SIMD3<Float>(0, 1, -1))
-                let mesh = MeshResource.generateText("Placeholder for initial content", extrusionDepth: 0.01, font: .systemFont(ofSize: 0.05))
-                let material = SimpleMaterial(color: .blue, isMetallic: false)
-                let model = ModelEntity(mesh: mesh, materials: [material])
-                artefactManager.addArtefact(artefact: model, anchor: anchor)
+               loadInitialArtefacts()
             } update: { content in
                 // Synchronisiere Artefakte mit RealityKit-Szene
                 for artefact in artefactManager.artefactEntities {
@@ -62,7 +56,37 @@ struct ImmersiveView: View {
             await roomTrackingManager.startSession()
         }
     }
+    
+    func loadInitialArtefacts() {
+        loadTextArtefact()
+        loadImageArtefact()
+        loadObjectArtefact()
+        loadVideoArtefact()
+        loadAudioArtefact()        
+    }
+
+    
+    func loadTextArtefact() {
+        artefactManager.addText(text: "Test init")
+    }
+    
+    func loadImageArtefact() {
+        
+    }
+    
+    func loadObjectArtefact() {
+        
+    }
+    
+    func loadVideoArtefact() {
+        
+    }
+    
+    func loadAudioArtefact() {
+        
+    }
 }
+
 
 #Preview(immersionStyle: .mixed) {
     ImmersiveView()

@@ -64,7 +64,7 @@ struct TextArtefactWindow: View {
     func saveChanges() {
         guard let artefact = artefactManager.artefacts.first(where: {$0.id == artefactManager.textToEditID}) else {
             artefactManager.textToEditID = nil
-            addText()
+            artefactManager.addText(text: text)
             dismiss()
             return
         }
@@ -101,35 +101,6 @@ struct TextArtefactWindow: View {
         dismiss()
     }
     
-    
-    func addText() {
-        let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedText.isEmpty else { return }
-        
-        let anchor = AnchorEntity(.head)
-        anchor.anchoring.trackingMode = .once
-        anchor.position = SIMD3<Float>(0,0,-0.5)
-        
-        let mesh = MeshResource.generateBox(size: SIMD3<Float>(0.3, 0.3, 0.001))
-        let material = SimpleMaterial(color: .yellow, roughness: 0.8 ,isMetallic: true)
-        let box = ModelEntity(mesh: mesh, materials: [material])
-        box.components.set(TagComponent(tag: "BackgroundBox"))
-        
-        let textEntity = generateTextEntity(text: trimmedText)
-        textEntity.name = trimmedText
-        textEntity.components.set(TagComponent(tag: "TextField"))
-        
-        let containerEntity = Entity()
-        containerEntity.addChild(box)
-        containerEntity.addChild(textEntity)
-        
-        centerTextAndBackground(textEntity: textEntity)
-        
-        containerEntity.name = "TextEntity"
-        
-        resizeBox(box: box, textEntity: textEntity)
-        artefactManager.addArtefact(artefact: containerEntity ,anchor: anchor)
-    }
 }
 
 // MARK: - Preview
