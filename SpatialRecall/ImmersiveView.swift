@@ -88,7 +88,13 @@ struct ImmersiveView: View {
     }
     
     func loadVideoArtefact() {
-        
+        Task {
+            guard let url = Bundle.main.url(forResource: "garmisch-walk", withExtension: "mov") else {
+                print( "File 'garmisch-walk' not found" )
+                return
+            }
+            await artefactManager.addVideo(url: url)
+        }
     }
     
     func loadAudioArtefact() {

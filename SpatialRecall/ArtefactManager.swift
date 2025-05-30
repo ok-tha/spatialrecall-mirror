@@ -115,4 +115,29 @@ class ArtefactManager: ObservableObject {
             print("Failed to create ModelEntity: \(error)")
         }
     }
+    
+    public func addVideo(url: URL) async {
+        guard let videoSize = await getVideoSize(url: url) else { return }
+        let proportionalWidth:Float = Float(videoSize.width / videoSize.height)
+        let videoHeight: Float = 0.3
+        print(proportionalWidth)
+        let avPlayer = AVPlayer(url: url)
+        
+        let videoMaterial = VideoMaterial(avPlayer: avPlayer)
+        
+        let mesh = MeshResource.generateBox(width: proportionalWidth*videoHeight, height: videoHeight, depth: 0.001, splitFaces: true)
+        let restMaterial = SimpleMaterial(color: .black, isMetallic: false)
+        let video = ModelEntity(mesh: mesh, materials: [videoMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
+        video.name = "VideoEntity"
+        video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
+        
+        let anchor = AnchorEntity(.head)
+        anchor.anchoring.trackingMode = .once
+        anchor.position = SIMD3<Float>(0, 0, -1)
+        anchor.addChild(video)
+        
+        addArtefact(artefact: video, anchor: anchor)
+        
+        selectedVideoURL = nil
+    }
 }
