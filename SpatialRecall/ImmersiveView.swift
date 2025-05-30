@@ -19,7 +19,10 @@ struct ImmersiveView: View {
         ArtefactHudButton()
         ZStack {
             RealityView { content in
-               loadInitialArtefacts()
+                if (!artefactManager.hasLoadedInitialArtefacts) {
+                    loadInitialArtefacts()
+                    artefactManager.hasLoadedInitialArtefacts = true
+                }
             } update: { content in
                 // Synchronisiere Artefakte mit RealityKit-Szene
                 for artefact in artefactManager.artefactEntities {

@@ -15,7 +15,7 @@ class ArtefactManager: ObservableObject {
     static let shared = ArtefactManager()
     @Published var artefacts: [Entity] = []
     @Published var artefactEntities: [Entity] = []
-    
+    @Published var hasLoadedInitialArtefacts = false
     @Published var isErasing = false //to check if should delete on click
     @Published var selectedImage: PhotosPickerItem? //for the image to be acceses from the window in the AddImage
     @Published var textToEditID: UInt64?
