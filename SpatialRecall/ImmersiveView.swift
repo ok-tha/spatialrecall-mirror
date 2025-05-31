@@ -75,7 +75,7 @@ struct ImmersiveView: View {
     
     func loadImageArtefact() {
         Task {
-            let data = UIImage(named: "garmisch-partenkirchen-header")?.pngData()
+            let data = UIImage(named: "garmisch-image")?.pngData()
             await artefactManager.addImage(data: data!)
         }
     }
