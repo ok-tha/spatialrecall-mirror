@@ -32,23 +32,35 @@ Hierfür notwendig: Klarname, Adresse,E-Mail-Adresse,Telefonnummer
 3. Erhebung und Verarbeitung personenbezogener Daten
 
 Wir erheben und verarbeiten personenbezogene Daten lokal auf Ihrem Gerät, wenn Sie unsere App „Spatial Recall“ nutzen. Zu den personenbezogenen Daten gehören:
+
 •	Fotos, Videos, GIFs: Inhalte, die Sie beim Hinzufügen aus der VisionOS Foto-Mediathek oder der Dateien-App auswählen.
+
 •	Audiodateien: Inhalte, die Sie beim Hinzufügen aus der Dateien-App auswählen.
-•	Nutzungsverhalten: Daten über Ihre Interaktionen mit der App (z. B. besuchte Seiten, Klicks) werden nicht erfasst. Es findet kein Traking oder Profiling statt.
-•	Geräteinformationen: Informationen über das Gerät, das Sie verwenden (z. B. IP-Adresse, Betriebssystem) werden weder gesammelt noch an einen Server übertragen.
+
+•	Nutzungsverhalten: Daten über Ihre Interaktionen mit der App (z. B. besuchte Seiten, Klicks) werden nicht erfasst. 
+    Es findet kein Traking oder Profiling statt.
+
+•	Geräteinformationen: Informationen über das Gerät, das Sie verwenden (z. B. IP-Adresse, Betriebssystem) werden 
+    weder gesammelt noch an einen Server übertragen.
 
 4. Zweck der Datenverarbeitung
 
 Wir verwenden Ihre personenbezogenen Daten für folgende Zwecke:
+
 •	Kommunikation mit Ihnen (wenn Sie unseren Support kontaktieren)
+
 •	Erfüllung rechtlicher Verpflichtungen
+
 •	Kernfunktionalitäten der App (Verarbeitung lokal auf Ihrem Gerät)
 
 5. Rechtsgrundlage der Verarbeitung
 
 Die Verarbeitung Ihrer personenbezogenen Daten erfolgt auf Grundlage folgender Rechtsgrundlagen:
+
 •	Einwilligung (Art. 6 Abs. 1 lit. a DSGVO)
+
 •	Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO)
+
 •	Berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO)
 
 6. Weitergabe von Daten
@@ -62,11 +74,17 @@ Wir setzen technische und organisatorische Sicherheitsmaßnahmen ein, um Ihre pe
 8. Ihre Rechte
 
 Sie haben das Recht:
+
 •	Auskunft über Ihre gespeicherten personenbezogenen Daten zu erhalten
+
 •	Berichtigung unrichtiger Daten zu verlangen
+
 •	Löschung Ihrer Daten zu beantragen
+
 •	Einschränkung der Verarbeitung zu verlangen
+
 •	Widerspruch gegen die Verarbeitung Ihrer Daten einzulegen
+
 •	Ihre Einwilligung jederzeit zu widerrufen
 
 9. Änderungen der Datenschutzerklärung
