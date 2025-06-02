@@ -1,0 +1,81 @@
+[
+    {
+        "position": [
+            0.60009086,
+            -0.34725636,
+            0.09840035
+        ],
+        "orientation": {
+            "values": [
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "worldAnchor": "27383523-63E1-498C-8800-608766B6E74D",
+        "type": "audio",
+        "id": "3FDDBC2D-7F93-421C-87B0-90D72798234F",
+        "data": {
+            "audioURL":
+                "file:\/\/\/private\/var\/containers\/Bundle\/Application\/45EB5400-E41C-4140-84EE-4D83B2C76A7C\/SpatialRecall.app\/morning-rain.mp3"
+        }
+    },
+    {
+        "position": [
+            -0.7004574,
+            0.032185733,
+            0.07044107
+        ],
+        "orientation": {
+            "values": [
+                0.06903502,
+                0.32955912,
+                -0.006845464,
+                0.9415828
+            ]
+        },
+        "scale": [
+            1.1859546,
+            1.1859546,
+            1.1859546
+        ],
+        "worldAnchor": "8A810224-6B6C-4752-A9C5-93E927BB98AB",
+        "type": "video",
+        "id": "8364BB8D-DAC2-46D4-B870-95819C7E7DF5",
+        "data": {
+            "videoID": "6F11DE62-AD28-48DC-A27A-008052569BAC"
+        }
+    },
+    {
+        "position": [
+            0.10714012,
+            0.37472853,
+            -0.07725756
+        ],
+        "orientation": {
+            "values": [
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "worldAnchor": "B16B87F9-3F40-43BC-A9BE-A056F9049F38",
+        "type": "image",
+        "id": "44A88300-D08E-45F6-805E-0A989912FB27",
+        "data": {
+            "imageAssetID": "91039063-89F4-408A-A4C7-C8E6F74D31DD"
+        }
+    }
+]

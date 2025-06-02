@@ -78,9 +78,10 @@ struct CodableTransform: Codable {
 
 class PersistenceManager {
     private let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-    private var artefactsFileURL: URL {
+    var artefactsFileURL: URL {
         documentsDirectory.appendingPathComponent("persistent_artefacts.json")
     }
+    
     
     func saveArtefacts(_ artefacts: [PersistentArtefact]) {
         do {
@@ -97,7 +98,22 @@ class PersistenceManager {
             let data = try Data(contentsOf: artefactsFileURL)
             let artefacts = try JSONDecoder().decode([PersistentArtefact].self, from: data)
             print("Loaded \(artefacts.count) artefacts")
-            print(artefacts)
+            return artefacts
+        } catch {
+            print("Failed to load artefacts: \(error)")
+            return []
+        }
+    }
+    
+    func loadDemoArtefacts() -> [PersistentArtefact] {
+        do {
+            guard let url = Bundle.main.url(forResource: "demo", withExtension: "json") else {
+                print( "File 'demo.json' not found" )
+                return []
+            }
+            let data = try Data(contentsOf: url)
+            let artefacts = try JSONDecoder().decode([PersistentArtefact].self, from: data)
+            print("Loaded \(artefacts.count) artefacts")
             return artefacts
         } catch {
             print("Failed to load artefacts: \(error)")

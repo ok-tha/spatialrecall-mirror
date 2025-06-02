@@ -18,10 +18,14 @@ class ArtefactManager: ObservableObject {
     
     var worldTracking = WorldTrackingManager.shared
     var persistenceManager = PersistenceManager()
+    
     @Published var artefacts: [Entity] = []
     @Published var artefactEntities: [AnchorEntity] = []
     @Published var persistentArtefacts: [PersistentArtefact] = []
-    @Published var hasLoadedInitialArtefacts = false
+    private var demoMode = true
+    private var demoModeSetup = true
+    private var demoManager = DemoManager()
+    
     
     @Published var isErasing = false //to check if should delete on click
     @Published var selectedImage: PhotosPickerItem? //for the image to be acceses from the window in the AddImage
@@ -32,11 +36,17 @@ class ArtefactManager: ObservableObject {
     
     private init(){
         Task{
-            if(false){
+            if(demoMode){
                 persistenceManager.clearAllArtefacts()
+                if(demoModeSetup){
+                    loadInitialArtefacts()
+                }else{
+                    loadDemoPersistedArtefacts()                    
+                }
+            }else{
+                loadPersistedArtefacts()
+                print("load persistence")
             }
-            loadPersistedArtefacts()
-            print("load persistence")
         }
     }
     
@@ -92,7 +102,7 @@ class ArtefactManager: ObservableObject {
             artefact = artefact.parent!
         }
         artefactEntities.removeAll { $0 == artefact }
-        await savePersistentArtefacts()
+        savePersistentArtefacts()
     }
     
     func repositionAllAnchors() async {
@@ -117,7 +127,8 @@ class ArtefactManager: ObservableObject {
         return worldTracking.getHeadWorldMatrix()
     }
     
-    func savePersistentArtefacts() async {
+    //Mark helper for saving
+    private func modifyPersistentArtefacts() {
         for i in 0..<persistentArtefacts.count {
             guard let artefact = artefacts.first(where: { entity in
                 guard let persistentIDComponent = entity.components[PersistentIDComponent.self] else { return false }
@@ -136,8 +147,11 @@ class ArtefactManager: ObservableObject {
                 }
             }
         }
+    }
+    
+    func savePersistentArtefacts() {
+        modifyPersistentArtefacts()
         persistenceManager.saveArtefacts(persistentArtefacts)
-        
     }
     
     
@@ -149,6 +163,15 @@ class ArtefactManager: ObservableObject {
             await recreateArtefactsFromPersistence()
         }
         
+    }
+    
+    private func loadDemoPersistedArtefacts() {
+        persistentArtefacts = persistenceManager.loadDemoArtefacts()
+        Task {
+            await worldTracking.waitForSessionReady()
+            await worldTracking.removeUnusedAnchors()
+            await recreateDemo()
+        }
     }
     
     private func recreateArtefactsFromPersistence() async {
@@ -179,6 +202,35 @@ class ArtefactManager: ObservableObject {
                     entity = await createObjectEntity(from: objectID)
                 }
             }
+            
+            if let entity = entity {
+                entity.components.set(InputTargetComponent(allowedInputTypes: .all))
+                entity.components.set(GroundingShadowComponent(castsShadow: true))
+                entity.components.set(PersistentIDComponent(persistentID: persistentArtefact.id))
+                entity.generateCollisionShapes(recursive: true)
+                
+                var anchor = AnchorEntity(world: .zero)
+                if let worldAnchor = await worldTracking.worldInfo.allAnchors?.first(where: {$0.id == persistentArtefact.worldAnchor}) {
+                    anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
+                }
+                entity.position = persistentArtefact.position
+                entity.scale = persistentArtefact.scale
+                entity.orientation = persistentArtefact.orientation.simdQuat
+                anchor.children.append(entity)
+                
+                await MainActor.run {
+                    artefactEntities.append(anchor)
+                    artefacts.append(entity)
+                }
+            }
+        }
+    }
+    
+    private func recreateDemo() async {
+        for persistentArtefact in persistentArtefacts {
+            let data = persistentArtefact.data
+            
+            var entity = await demoManager.getDemoEntity(type: persistentArtefact.type)
             
             if let entity = entity {
                 entity.components.set(InputTargetComponent(allowedInputTypes: .all))
@@ -244,7 +296,7 @@ class ArtefactManager: ObservableObject {
         return sphere
     }
     
-    private func createImageEntity(from imageID: String, width: Float? = nil, height: Float? = nil) async -> Entity? {
+    func createImageEntity(from imageID: String, width: Float? = nil, height: Float? = nil) async -> Entity? {
         let uiImage = persistenceManager.loadImage(imageID: imageID)
         
         guard uiImage != nil else { return nil }
@@ -311,7 +363,7 @@ class ArtefactManager: ObservableObject {
         }
     }
     
-    public func addText(text: string) {
+    public func addText(text: String) {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else { return }
         
@@ -444,6 +496,58 @@ class ArtefactManager: ObservableObject {
         
         addArtefact(artefact: sphere, at: headTransform, type: .audio, data: ArtefactData(audioURL: url))
     }
+    
+    func loadInitialArtefacts() {
+        print("Loading init for setup")
+        loadTextArtefact()
+        loadImageArtefact()
+        loadObjectArtefact()
+        loadVideoArtefact()
+        loadAudioArtefact()
+    }
+
+    
+    func loadTextArtefact() {
+        addText(text: "Example text artefact")
+    }
+    
+    func loadImageArtefact() {
+        Task {
+            let data = UIImage(named: "garmisch-image")?.pngData()
+            await addImage(data: data!)
+        }
+    }
+    
+    func loadObjectArtefact() {
+        Task {
+            guard let url = Bundle.main.url(forResource: "ring", withExtension: "stl") else {
+                print( "File 'pancakes' not found" )
+                return
+            }
+            await addObject(url: url)
+        }
+    }
+    
+    func loadVideoArtefact() {
+        Task {
+            guard let url = Bundle.main.url(forResource: "garmisch-walk", withExtension: "mov") else {
+                print( "File 'garmisch-walk' not found" )
+                return
+            }
+            await addVideo(url: url)
+        }
+    }
+    
+    func loadAudioArtefact() {
+        Task {
+            guard let url = Bundle.main.url(forResource: "morning-rain", withExtension: "mp3") else {
+                print( "File 'morning-rain' not found" )
+                return
+            }
+            addAudio(url: url)
+        }
+    }
+    
 }
 
 struct PersistentIDComponent: Component {

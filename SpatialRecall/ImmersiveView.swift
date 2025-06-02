@@ -12,7 +12,7 @@ import ARKit
 struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
     @Environment(\.openWindow) var openWindow
-    @EnvironmentObject var roomTrackingManager: RoomTrackingManager
+    //@EnvironmentObject var roomTrackingManager: RoomTrackingManager
     @StateObject private var artefactManager = ArtefactManager.shared
     @StateObject private var worldTrackingManager = WorldTrackingManager.shared
 
@@ -20,10 +20,6 @@ struct ImmersiveView: View {
         ArtefactHudButton()
         ZStack {
             RealityView { content in
-                if (!artefactManager.hasLoadedInitialArtefacts) {
-                    loadInitialArtefacts()
-                    artefactManager.hasLoadedInitialArtefacts = true
-                }
             } update: { content in
                 // Synchronisiere Artefakte mit RealityKit-Szene
                 for artefact in artefactManager.artefactEntities {
@@ -59,61 +55,11 @@ struct ImmersiveView: View {
             // Session starten, falls nicht bereits durch init gestartet
         }
     }
-    
-    func loadInitialArtefacts() {
-        loadTextArtefact()
-        loadImageArtefact()
-        loadObjectArtefact()
-        loadVideoArtefact()
-        loadAudioArtefact()
-    }
-
-    
-    func loadTextArtefact() {
-        artefactManager.addText(text: "Example text artefact")
-    }
-    
-    func loadImageArtefact() {
-        Task {
-            let data = UIImage(named: "garmisch-image")?.pngData()
-            await artefactManager.addImage(data: data!)
-        }
-    }
-    
-    func loadObjectArtefact() {
-        Task {
-            guard let url = Bundle.main.url(forResource: "ring", withExtension: "stl") else {
-                print( "File 'pancakes' not found" )
-                return
-            }
-            await artefactManager.addObject(url: url)
-        }
-    }
-    
-    func loadVideoArtefact() {
-        Task {
-            guard let url = Bundle.main.url(forResource: "garmisch-walk", withExtension: "mov") else {
-                print( "File 'garmisch-walk' not found" )
-                return
-            }
-            await artefactManager.addVideo(url: url)
-        }
-    }
-    
-    func loadAudioArtefact() {
-        Task {
-            guard let url = Bundle.main.url(forResource: "morning-rain", withExtension: "mp3") else {
-                print( "File 'morning-rain' not found" )
-                return
-            }
-            artefactManager.addAudio(url: url)
-        }
-    }
 }
 
 
 #Preview(immersionStyle: .mixed) {
     ImmersiveView()
         .environment(AppModel())
-        .environmentObject(RoomTrackingManager()) // Für Preview
+        //.environmentObject(RoomTrackingManager()) // Für Preview
 }
