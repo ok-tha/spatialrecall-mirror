@@ -82,7 +82,7 @@ struct ImmersiveView: View {
     
     func loadObjectArtefact() {
         Task {
-            guard let url = Bundle.main.url(forResource: "pancakes", withExtension: "usdz") else {
+            guard let url = Bundle.main.url(forResource: "ring", withExtension: "stl") else {
                 print( "File 'pancakes' not found" )
                 return
             }
