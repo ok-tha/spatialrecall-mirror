@@ -1,9 +1,3 @@
-//
-//  SpatialRecallApp.swift
-//  SpatialRecall
-//
-//  Created by Oliver on 08.04.25.
-//
 import SwiftUI
 
 @main
@@ -11,43 +5,78 @@ struct SpatialRecallApp: App {
     
     @State private var appModel = AppModel()
     @State private var avPlayerViewModel = AVPlayerViewModel()
-    @StateObject private var roomTrackingManager = RoomTrackingManager() // ← HIER NEU
+    @StateObject private var roomTrackingManager = RoomTrackingManager()
 
     var body: some Scene {
         WindowGroup(id: appModel.imagePickerWindowID) {
-            ImagePickerWindow()
-                .environment(appModel)
-            ReactivateImmersiveSpaceButton()
-                .environment(appModel)
+            VStack {
+                ImagePickerWindow()
+                Spacer()
+                ReactivateImmersiveSpaceButton()
+            }
+            .padding()
+            .environment(appModel)
+            .environmentObject(roomTrackingManager)
         }
-        WindowGroup(id: appModel.textEditorWindowID){
-            TextArtefactWindow()
-            ReactivateImmersiveSpaceButton()
-                .environment(appModel)
-        }.defaultSize(width: 400, height: 350)
+        .defaultSize(width: 400, height: 300)
+        .windowResizability(.contentSize)
+        
+        WindowGroup(id: appModel.textEditorWindowID) {
+            VStack {
+                TextArtefactWindow()
+                Spacer()
+                ReactivateImmersiveSpaceButton()
+            }
+            .padding()
+            .environment(appModel)
+            .environmentObject(roomTrackingManager)
+        }
+        .defaultSize(width: 400, height: 350)
+        .windowResizability(.contentSize)
+        
         WindowGroup(id: appModel.audioPickerWindowID) {
-            AudioPickerWindow()
-                .environment(appModel)
-            ReactivateImmersiveSpaceButton()
-                .environment(appModel)
-        }.defaultSize(width: 400, height: 200)
+            VStack {
+                AudioPickerWindow()
+                Spacer()
+                ReactivateImmersiveSpaceButton()
+            }
+            .padding()
+            .environment(appModel)
+            .environmentObject(roomTrackingManager)
+        }
+        .defaultSize(width: 400, height: 200)
+        .windowResizability(.contentSize)
+        
         WindowGroup(id: appModel.objectPickerWindowID) {
-            ObjectPickerWindow()
-                .environment(appModel)
-            ReactivateImmersiveSpaceButton()
-                .environment(appModel)
-        }.defaultSize(width: 400, height: 200)
+            VStack {
+                ObjectPickerWindow()
+                Spacer()
+                ReactivateImmersiveSpaceButton()
+            }
+            .padding()
+            .environment(appModel)
+            .environmentObject(roomTrackingManager)
+        }
+        .defaultSize(width: 400, height: 200)
+        .windowResizability(.contentSize)
+        
         WindowGroup(id: appModel.videoPickerWindowID) {
-            VideoPickerWindow()
-                .environment(appModel)
-            ReactivateImmersiveSpaceButton()
-                .environment(appModel)
-        }.defaultSize(width: 400, height: 300)
+            VStack {
+                VideoPickerWindow()
+                Spacer()
+                ReactivateImmersiveSpaceButton()
+            }
+            .padding()
+            .environment(appModel)
+            .environmentObject(roomTrackingManager)
+        }
+        .defaultSize(width: 400, height: 300)
+        .windowResizability(.contentSize)
         
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
                 .environment(appModel)
-                .environmentObject(roomTrackingManager) // ← HIER NEU
+                .environmentObject(roomTrackingManager)
                 .onAppear {
                     appModel.immersiveSpaceState = .open
                     avPlayerViewModel.play()
