@@ -24,7 +24,6 @@ struct ObjectPickerWindow: View {
             allowedContentTypes: [.obj, .stl, .ply, .usdz],
             allowsMultipleSelection: false,
         ) { result in
-            print(result)
             switch result {
             case .success(let urls):
                 if let url = urls.first {

@@ -14,6 +14,7 @@ struct ImmersiveView: View {
     @Environment(\.openWindow) var openWindow
     @EnvironmentObject var roomTrackingManager: RoomTrackingManager
     @StateObject private var artefactManager = ArtefactManager.shared
+    @StateObject private var worldTrackingManager = WorldTrackingManager.shared
 
     var body: some View {
         ArtefactHudButton()
@@ -42,21 +43,20 @@ struct ImmersiveView: View {
             )
 
             // Optional: Anzeige des RoomAnchor-Status
-            if let anchor = roomTrackingManager.currentRoomAnchor {
-                VStack {
-                    Spacer()
-                    Text("Raumanker aktiv: \(anchor.id.uuidString)")
-                        .font(.caption)
-                        .padding(6)
-                        .background(.ultraThinMaterial)
-                        .cornerRadius(10)
-                        .padding()
-                }
-            }
+//            if let anchor = roomTrackingManager.currentRoomAnchor {
+//                VStack {
+//                    Spacer()
+//                    Text("Raumanker aktiv: \(anchor.id.uuidString)")
+//                        .font(.caption)
+//                        .padding(6)
+//                        .background(.ultraThinMaterial)
+//                        .cornerRadius(10)
+//                        .padding()
+//                }
+//            }
         }
         .task {
             // Session starten, falls nicht bereits durch init gestartet
-            await roomTrackingManager.startSession()
         }
     }
     

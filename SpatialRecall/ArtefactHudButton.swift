@@ -22,7 +22,7 @@ struct ArtefactHudButton: View {
                 VStack(spacing: 10) {
                     if !artefactManager.isErasing {
                         HStack(spacing: 8) {
-                            AddBoxArtefact()
+//                            AddBoxArtefact() //Dont use anymore only reference
                             AddImageArtefact()
                             AddTextArtefact()
                             AddAudioArtefact()

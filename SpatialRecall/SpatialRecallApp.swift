@@ -7,6 +7,9 @@ struct SpatialRecallApp: App {
     @State private var avPlayerViewModel = AVPlayerViewModel()
     @StateObject private var roomTrackingManager = RoomTrackingManager()
 
+    private var artefactManager = ArtefactManager.shared
+    private var worldTracking = WorldTrackingManager.shared
+    
     var body: some Scene {
         WindowGroup(id: appModel.imagePickerWindowID) {
             VStack {
@@ -79,6 +82,12 @@ struct SpatialRecallApp: App {
                 .environmentObject(roomTrackingManager)
                 .onAppear {
                     appModel.immersiveSpaceState = .open
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                        Task{
+                            print("Fpp")
+                            await artefactManager.repositionAllAnchors()
+                        }
+                    })
                     avPlayerViewModel.play()
                 }
                 .onDisappear {

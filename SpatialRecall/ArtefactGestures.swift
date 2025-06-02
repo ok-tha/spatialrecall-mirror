@@ -39,6 +39,9 @@ struct ArtefactGestures {
             .onEnded({ _ in
                 currentDragEntity = nil
                 startPosition = .zero
+                Task{
+                    await artefactManager.savePersistentArtefacts()
+                }
             })
     }
 
@@ -73,6 +76,9 @@ struct ArtefactGestures {
             .onEnded({ _ in
                 isRotating = false;
                 startOrientation = .identity
+                Task{
+                    await artefactManager.savePersistentArtefacts()
+                }
             })
     }
     
@@ -98,6 +104,9 @@ struct ArtefactGestures {
             .onEnded({ _ in
                 isScaling = false;
                 startScale = SIMD3<Float>.one
+                Task{
+                    await artefactManager.savePersistentArtefacts()
+                }
             })
     }
     
@@ -109,17 +118,8 @@ struct ArtefactGestures {
                 Task{ @MainActor in
                     guard artefactManager.isErasing else { return }
                     let entity = value.entity
-                    guard var artefact = getValidArtefact(from: entity, artefactManager: artefactManager) else { return }
-                    if artefact.name == "TextEntity" {
-                        if artefactManager.textToEditID == artefact.id {
-                            artefactManager.textToEditID = nil
-                        }
-                    }
-                    artefactManager.artefacts.removeAll(where: { $0 == entity})
-                    if artefact.parent is AnchorEntity {
-                        artefact = artefact.parent!
-                    }
-                    artefactManager.artefactEntities.removeAll { $0 == artefact }
+                    guard let artefact = getValidArtefact(from: entity, artefactManager: artefactManager) else { return }
+                    await artefactManager.removeArtefact(artefact)
                 }
             }
     }

@@ -8,7 +8,6 @@
 import SwiftUI
 import RealityKit
 
-
 struct TextArtefactWindow: View {
     
     @Environment(\.dismiss) private var dismiss
@@ -33,7 +32,9 @@ struct TextArtefactWindow: View {
                     dismiss()
                 }
                 Button("Speichern") {
-                    saveChanges()
+                    Task{
+                        await saveChanges()
+                    }
                 }
                 .disabled(text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
@@ -61,7 +62,7 @@ struct TextArtefactWindow: View {
         return ""
     }
     
-    func saveChanges() {
+    func saveChanges() async {
         guard let artefact = artefactManager.artefacts.first(where: {$0.id == artefactManager.textToEditID}) else {
             artefactManager.textToEditID = nil
             artefactManager.addText(text: text)
@@ -69,6 +70,7 @@ struct TextArtefactWindow: View {
             return
         }
         let newText = generateTextEntity(text: text)
+        newText.name = text
         newText.components.set(TagComponent(tag: "TextField"))
         
         var textEntity: ModelEntity?
@@ -97,14 +99,9 @@ struct TextArtefactWindow: View {
         }
         guard backgroundEntity != nil && textEntity != nil else { dismiss(); return }
         resizeBox(box: backgroundEntity!, textEntity: textEntity!)
+        await artefactManager.savePersistentArtefacts()
         artefactManager.textToEditID = nil
         dismiss()
     }
     
-}
-
-// MARK: - Preview
-
-#Preview {
-    TextArtefactWindow()
 }

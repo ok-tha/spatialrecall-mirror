@@ -46,7 +46,6 @@ struct VideoPickerWindow: View {
             allowedContentTypes: [.video],
             allowsMultipleSelection: false,
         ) { result in
-            print(result)
             switch result {
             case .success(let urls):
                 if let url = urls.first {
