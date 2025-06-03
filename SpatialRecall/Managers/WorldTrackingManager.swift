@@ -94,10 +94,16 @@ class WorldTrackingManager: ObservableObject {
         }
     }
     
-    func getHeadWorldMatrix() -> simd_float4x4? {
+    func getHeadWorldPositionAsMatrix() -> simd_float4x4? {
         let deviceAnchor = worldInfo.queryDeviceAnchor(atTimestamp: CACurrentMediaTime())
         guard let deviceAnchor, deviceAnchor.isTracked else { return nil}
-        return deviceAnchor.originFromAnchorTransform
+        print(deviceAnchor.originFromAnchorTransform)
+        var matrix = deviceAnchor.originFromAnchorTransform
+        matrix.columns.0 = simd_float4(1.0,0,0,0)
+        matrix.columns.1 = simd_float4(0,1.0,0,0)
+        matrix.columns.2 = simd_float4(0,0,1.0,0)
+        print(matrix)
+        return matrix
     }
     
     func removeUnusedAnchors() async {

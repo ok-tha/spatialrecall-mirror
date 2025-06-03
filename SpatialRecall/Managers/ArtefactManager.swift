@@ -22,8 +22,8 @@ class ArtefactManager: ObservableObject {
     @Published var artefacts: [Entity] = []
     @Published var artefactEntities: [AnchorEntity] = []
     @Published var persistentArtefacts: [PersistentArtefact] = []
-    private var demoMode = true
-    private var demoModeSetup = false
+    private var demoMode = true //To load default artefacts
+    private var demoModeSetup = true //To get set the locations of the default artefacts and extract the json
     private var demoManager = DemoManager()
     
     
@@ -72,7 +72,7 @@ class ArtefactManager: ObservableObject {
                 scale: artefact.scale
             )
             persistentArtefacts.append(persistentArtefact)
-            
+            print(type, at)
             persistenceManager.saveArtefacts(persistentArtefacts)
             
             anchor.children.append(artefact)
@@ -113,7 +113,7 @@ class ArtefactManager: ObservableObject {
             let worldAnchors = await worldTracking.worldInfo.allAnchors
             guard let worldAnchor = worldAnchors?.first(where: { $0.id == persistentArtefact.worldAnchor }) else { return }
             
-            guard var headTransform = getHeadWorldMatrix() else { return }
+            guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
             let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
             headTransform.columns.3.x += worldTransform.x
             headTransform.columns.3.z += worldTransform.z
@@ -128,8 +128,8 @@ class ArtefactManager: ObservableObject {
             
     }
     
-    func getHeadWorldMatrix() -> simd_float4x4? {
-        return worldTracking.getHeadWorldMatrix()
+    func getHeadWorldPositionAsMatrix() -> simd_float4x4? {
+        return worldTracking.getHeadWorldPositionAsMatrix()
     }
     
     //Mark helper for saving
@@ -214,7 +214,7 @@ class ArtefactManager: ObservableObject {
                 entity.components.set(PersistentIDComponent(persistentID: persistentArtefact.id))
                 entity.generateCollisionShapes(recursive: true)
                 
-                guard var headTransform = getHeadWorldMatrix() else { return }
+                guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
                 let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
                 headTransform.columns.3.x += worldTransform.x
                 headTransform.columns.3.z += worldTransform.z
@@ -244,7 +244,7 @@ class ArtefactManager: ObservableObject {
             
             
             if let entity = entity {
-                guard var headTransform = getHeadWorldMatrix() else { return }
+                guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
                 let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
                 headTransform.columns.3.x += worldTransform.x
                 headTransform.columns.3.z += worldTransform.z
@@ -383,7 +383,7 @@ class ArtefactManager: ObservableObject {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else { return }
         
-        guard var headTransform = getHeadWorldMatrix() else { return }
+        guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
         let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
         headTransform.columns.3.x += worldTransform.x
         headTransform.columns.3.z += worldTransform.z
@@ -426,7 +426,7 @@ class ArtefactManager: ObservableObject {
             let image = ModelEntity(mesh: mesh, materials: [frontMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
             
             
-            guard var headTransform = getHeadWorldMatrix() else { return }
+            guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
             let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
             headTransform.columns.3.x += worldTransform.x
             headTransform.columns.3.z += worldTransform.z
@@ -438,21 +438,36 @@ class ArtefactManager: ObservableObject {
     }
     
     public func addObject(url: URL) async {
+        print(url)
         // Request access to security-scoped resource
-        guard url.startAccessingSecurityScopedResource() else {
-            print("Failed to access security-scoped resource")
-            return
+        var needsSecurityScopedAccess = false
+        var didStartAccessing = false
+
+        // Check if the file is outside the app sandbox (like from Files app)
+        // Bundle resources are typically in the app's directory
+        if !url.path.hasPrefix(Bundle.main.bundlePath) {
+            needsSecurityScopedAccess = true
         }
-        
+
+        if needsSecurityScopedAccess {
+            didStartAccessing = url.startAccessingSecurityScopedResource()
+            if !didStartAccessing {
+                print("Failed to access security-scoped resource")
+                return
+            }
+        }
+
         defer {
-            // Always stop accessing when done
-            url.stopAccessingSecurityScopedResource()
+            if didStartAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
         }
+        print("object", url)
         
         do {
             let modelEntity = try await ModelEntity(contentsOf: url)
             
-            guard var headTransform = getHeadWorldMatrix() else { return }
+            guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
             let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
             headTransform.columns.3.x += worldTransform.x
             headTransform.columns.3.z += worldTransform.z
@@ -479,7 +494,7 @@ class ArtefactManager: ObservableObject {
         video.name = "VideoEntity"
         video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
         
-        guard var headTransform = getHeadWorldMatrix() else { return }
+        guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
         let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
         headTransform.columns.3.x += worldTransform.x
         headTransform.columns.3.z += worldTransform.z
@@ -493,7 +508,7 @@ class ArtefactManager: ObservableObject {
     
     public func addAudio(url: URL) {
        print("Adding Audio", url.lastPathComponent)
-        guard var headTransform = getHeadWorldMatrix() else { return }
+        guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
         let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
         headTransform.columns.3.x += worldTransform.x
         headTransform.columns.3.z += worldTransform.z
