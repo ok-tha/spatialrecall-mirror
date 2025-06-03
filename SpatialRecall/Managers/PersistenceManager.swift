@@ -87,7 +87,7 @@ class PersistenceManager {
         do {
             let data = try JSONEncoder().encode(artefacts)
             try data.write(to: artefactsFileURL)
-            print("Artefacts saved successfully")
+            print("Artefacts saved successfully", artefactsFileURL)
         } catch {
             print("Failed to save artefacts: \(error)")
         }

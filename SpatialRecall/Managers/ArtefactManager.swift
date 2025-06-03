@@ -23,7 +23,7 @@ class ArtefactManager: ObservableObject {
     @Published var artefactEntities: [AnchorEntity] = []
     @Published var persistentArtefacts: [PersistentArtefact] = []
     private var demoMode = true
-    private var demoModeSetup = true
+    private var demoModeSetup = false
     private var demoManager = DemoManager()
     
     
@@ -113,7 +113,12 @@ class ArtefactManager: ObservableObject {
             let worldAnchors = await worldTracking.worldInfo.allAnchors
             guard let worldAnchor = worldAnchors?.first(where: { $0.id == persistentArtefact.worldAnchor }) else { return }
             
-            var anchor = AnchorEntity(world: .zero)
+            guard var headTransform = getHeadWorldMatrix() else { return }
+            let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
+            headTransform.columns.3.x += worldTransform.x
+            headTransform.columns.3.z += worldTransform.z
+            
+            var anchor = AnchorEntity(world: headTransform)
             anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
             
             anchor.children.append(artefact)
@@ -209,7 +214,12 @@ class ArtefactManager: ObservableObject {
                 entity.components.set(PersistentIDComponent(persistentID: persistentArtefact.id))
                 entity.generateCollisionShapes(recursive: true)
                 
-                var anchor = AnchorEntity(world: .zero)
+                guard var headTransform = getHeadWorldMatrix() else { return }
+                let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
+                headTransform.columns.3.x += worldTransform.x
+                headTransform.columns.3.z += worldTransform.z
+                
+                var anchor = AnchorEntity(world: headTransform)
                 if let worldAnchor = await worldTracking.worldInfo.allAnchors?.first(where: {$0.id == persistentArtefact.worldAnchor}) {
                     anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
                 }
@@ -232,13 +242,19 @@ class ArtefactManager: ObservableObject {
             
             var entity = await demoManager.getDemoEntity(type: persistentArtefact.type)
             
+            
             if let entity = entity {
+                guard var headTransform = getHeadWorldMatrix() else { return }
+                let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
+                headTransform.columns.3.x += worldTransform.x
+                headTransform.columns.3.z += worldTransform.z
+                
                 entity.components.set(InputTargetComponent(allowedInputTypes: .all))
                 entity.components.set(GroundingShadowComponent(castsShadow: true))
                 entity.components.set(PersistentIDComponent(persistentID: persistentArtefact.id))
                 entity.generateCollisionShapes(recursive: true)
                 
-                var anchor = AnchorEntity(world: .zero)
+                var anchor = AnchorEntity(world: headTransform)
                 if let worldAnchor = await worldTracking.worldInfo.allAnchors?.first(where: {$0.id == persistentArtefact.worldAnchor}) {
                     anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
                 }

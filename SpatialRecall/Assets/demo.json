@@ -1,10 +1,21 @@
 [
     {
         "position": [
-            0.60009086,
-            -0.34725636,
-            0.09840035
+            0.031697173,
+            0.18981162,
+            0.03410384
         ],
+        "id": "1FBB10BD-F295-4D03-972A-44991C4F030E",
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "type": "text",
+        "data": {
+            "textContent": "Example text artefact"
+        },
+        "worldAnchor": "462C0C85-C46C-4503-BE8A-84B26F97554F",
         "orientation": {
             "values": [
                 0,
@@ -12,51 +23,49 @@
                 0,
                 1
             ]
-        },
-        "scale": [
-            1,
-            1,
-            1
+        }
+    },
+    {
+        "position": [
+            0.36516705,
+            -0.2670026,
+            0.2299052
         ],
-        "worldAnchor": "27383523-63E1-498C-8800-608766B6E74D",
         "type": "audio",
-        "id": "3FDDBC2D-7F93-421C-87B0-90D72798234F",
+        "worldAnchor": "7E2D5810-088F-4B6E-A34A-86642F257631",
+        "id": "0B23E7B9-3AD7-49A4-9651-080DE5AB0A08",
         "data": {
             "audioURL":
-                "file:\/\/\/private\/var\/containers\/Bundle\/Application\/45EB5400-E41C-4140-84EE-4D83B2C76A7C\/SpatialRecall.app\/morning-rain.mp3"
-        }
-    },
-    {
-        "position": [
-            -0.7004574,
-            0.032185733,
-            0.07044107
+                "file:\/\/\/Users\/laser\/Library\/Developer\/CoreSimulator\/Devices\/C21746FD-259B-4AA5-8383-456AB51E77FC\/data\/Containers\/Bundle\/Application\/FF4C573C-E1C0-4C7A-A30B-D3B47A376E2A\/SpatialRecall.app\/morning-rain.mp3"
+        },
+        "scale": [
+            1,
+            1,
+            1
         ],
         "orientation": {
             "values": [
-                0.06903502,
-                0.32955912,
-                -0.006845464,
-                0.9415828
+                0,
+                0,
+                0,
+                1
             ]
-        },
-        "scale": [
-            1.1859546,
-            1.1859546,
-            1.1859546
-        ],
-        "worldAnchor": "8A810224-6B6C-4752-A9C5-93E927BB98AB",
-        "type": "video",
-        "id": "8364BB8D-DAC2-46D4-B870-95819C7E7DF5",
-        "data": {
-            "videoID": "6F11DE62-AD28-48DC-A27A-008052569BAC"
         }
     },
     {
+        "scale": [
+            1,
+            1,
+            1
+        ],
+        "data": {
+            "videoID": "D9FA7ED3-97A7-4665-BF11-F6DABB28753C"
+        },
+        "id": "044B57ED-3D5F-4FCF-9A63-E67008777604",
         "position": [
-            0.10714012,
-            0.37472853,
-            -0.07725756
+            -0.3370707,
+            -0.33935013,
+            0.268753
         ],
         "orientation": {
             "values": [
@@ -66,16 +75,59 @@
                 1
             ]
         },
+        "worldAnchor": "66E1FB79-9D95-4CE5-9509-919409FDBBCE",
+        "type": "video"
+    },
+    {
+        "id": "C55AFED3-9C8B-4E08-923A-512A4393BC6A",
         "scale": [
             1,
             1,
             1
         ],
-        "worldAnchor": "B16B87F9-3F40-43BC-A9BE-A056F9049F38",
         "type": "image",
-        "id": "44A88300-D08E-45F6-805E-0A989912FB27",
+        "orientation": {
+            "values": [
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        "worldAnchor": "C15FE707-1A14-4013-B63E-F99BE074D786",
         "data": {
-            "imageAssetID": "91039063-89F4-408A-A4C7-C8E6F74D31DD"
-        }
+            "imageAssetID": "5D84BBDA-6909-40C7-805E-CF5FBEB8D9F0"
+        },
+        "position": [
+            -0.33199248,
+            0.31582972,
+            0.23807983
+        ]
+    },
+    {
+        "position": [
+            0.37871587,
+            0.26906782,
+            0.24730723
+        ],
+        "id": "B14E1D97-32EC-4764-AE83-D0E326EA98E1",
+        "worldAnchor": "CFA86F7B-2920-446A-AB34-413D79CA70E9",
+        "data": {
+            "objectID": "2492C147-4D9C-45EF-98A5-ECE1F529AF60"
+        },
+        "scale": [
+            0.01,
+            0.01,
+            0.01
+        ],
+        "orientation": {
+            "values": [
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        "type": "object"
     }
 ]
