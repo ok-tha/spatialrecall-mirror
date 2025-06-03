@@ -499,11 +499,14 @@ class ArtefactManager: ObservableObject {
     
     func loadInitialArtefacts() {
         print("Loading init for setup")
-        loadTextArtefact()
-        loadImageArtefact()
-        loadObjectArtefact()
-        loadVideoArtefact()
-        loadAudioArtefact()
+        Task{
+            await worldTracking.waitForSessionReady()
+            loadTextArtefact()
+            loadImageArtefact()
+            loadObjectArtefact()
+            loadVideoArtefact()
+            loadAudioArtefact()            
+        }
     }
 
     
