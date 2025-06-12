@@ -99,9 +99,9 @@ class WorldTrackingManager: ObservableObject {
         guard let deviceAnchor, deviceAnchor.isTracked else { return nil}
         print(deviceAnchor.originFromAnchorTransform)
         var matrix = deviceAnchor.originFromAnchorTransform
-        matrix.columns.0 = simd_float4(1.0,0,0,0)
-        matrix.columns.1 = simd_float4(0,1.0,0,0)
-        matrix.columns.2 = simd_float4(0,0,1.0,0)
+//        matrix.columns.0 = simd_float4(1.0,0,0,0)
+//        matrix.columns.1 = simd_float4(0,1.0,0,0)
+//        matrix.columns.2 = simd_float4(0,0,1.0,0)
         print(matrix)
         return matrix
     }

@@ -23,7 +23,7 @@ class ArtefactManager: ObservableObject {
     @Published var artefactEntities: [AnchorEntity] = []
     @Published var persistentArtefacts: [PersistentArtefact] = []
     private var demoMode = true //To load default artefacts
-    private var demoModeSetup = false //To get set the locations of the default artefacts and extract the json
+    private var demoModeSetup = true //To get set the locations of the default artefacts and extract the json
     private var demoManager = DemoManager()
     
     
@@ -105,6 +105,68 @@ class ArtefactManager: ObservableObject {
         savePersistentArtefacts()
     }
     
+    func getHeadPositionAndMoveBy(_ offset: simd_float3) -> simd_float4x4? {
+        // Get the current head position matrix
+        guard let headTransform = getHeadWorldPositionAsMatrix() else { return nil }
+        
+        // For upright positioning, we only want horizontal rotation (yaw)
+        // Extract only the Y rotation component
+        let headYaw = atan2(headTransform.columns.2.x, headTransform.columns.2.z)
+        
+        // Create rotation matrix with only Y rotation
+        let cosYaw = cos(headYaw)
+        let sinYaw = sin(headYaw)
+        let yRotationMatrix = simd_float3x3(
+            simd_float3(cosYaw, 0, -sinYaw),
+            simd_float3(0, 1, 0),
+            simd_float3(sinYaw, 0, cosYaw)
+        )
+        
+        // Transform the local offset to world space (only horizontal rotation)
+        let worldOffset = yRotationMatrix * offset
+        
+        // Calculate the new position
+        let headPosition = simd_float3(
+            headTransform.columns.3.x,
+            headTransform.columns.3.y,
+            headTransform.columns.3.z
+        )
+        let newPosition = headPosition + worldOffset
+        
+        // Create upright transform (identity rotation) - no rotation towards user
+        var uprightTransform = simd_float4x4(1.0)
+        uprightTransform.columns.3 = simd_float4(newPosition.x, newPosition.y, newPosition.z, 1.0)
+        
+        return uprightTransform
+    }
+    
+    func getOrientationFromMoveByMatrix(_ simd: simd_float4x4) -> simd_quatf? {
+        guard let headTransform = getHeadWorldPositionAsMatrix() else { return nil }
+        let headPosition = simd_float3(
+            headTransform.columns.3.x,
+            headTransform.columns.3.y,
+            headTransform.columns.3.z
+        )
+        let newPosition = SIMD3(simd.columns.3.x, simd.columns.3.y, simd.columns.3.z)
+        
+        // Create transform that faces the head position
+        let directionToHead = simd_normalize(headPosition - newPosition)
+       
+        // Calculate rotation to face the head (look-at rotation)
+        let forward = directionToHead
+        let worldUp = simd_float3(0, 1, 0)
+        let right = simd_normalize(simd_cross(worldUp, forward))
+        let up = simd_cross(forward, right)
+        
+        // Create the rotation matrix (3x3)
+        let rotationMatrix3x3 = simd_float3x3(
+            simd_float3(right.x, right.y, right.z),
+            simd_float3(up.x, up.y, up.z),
+            simd_float3(forward.x, forward.y, forward.z)
+        )
+        return simd_quatf(rotationMatrix3x3)
+    }
+    
     func repositionAllAnchors() async {
         
         for artefact in artefacts {
@@ -113,12 +175,12 @@ class ArtefactManager: ObservableObject {
             let worldAnchors = await worldTracking.worldInfo.allAnchors
             guard let worldAnchor = worldAnchors?.first(where: { $0.id == persistentArtefact.worldAnchor }) else { return }
             
-            guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-            let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-            headTransform.columns.3.x += worldTransform.x
-            headTransform.columns.3.z += worldTransform.z
+            guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
+            guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
             
-            var anchor = AnchorEntity(world: headTransform)
+            artefact.setOrientation(rotation, relativeTo: nil)
+            
+            var anchor = AnchorEntity(world: transform)
             anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
             
             anchor.children.append(artefact)
@@ -214,12 +276,12 @@ class ArtefactManager: ObservableObject {
                 entity.components.set(PersistentIDComponent(persistentID: persistentArtefact.id))
                 entity.generateCollisionShapes(recursive: true)
                 
-                guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-                let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-                headTransform.columns.3.x += worldTransform.x
-                headTransform.columns.3.z += worldTransform.z
+                guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
+                guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
                 
-                var anchor = AnchorEntity(world: headTransform)
+                entity.setOrientation(rotation, relativeTo: nil)
+                
+                var anchor = AnchorEntity(world: transform)
                 if let worldAnchor = await worldTracking.worldInfo.allAnchors?.first(where: {$0.id == persistentArtefact.worldAnchor}) {
                     anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
                 }
@@ -238,23 +300,23 @@ class ArtefactManager: ObservableObject {
     
     private func recreateDemo() async {
         for persistentArtefact in persistentArtefacts {
-            let data = persistentArtefact.data
             
-            var entity = await demoManager.getDemoEntity(type: persistentArtefact.type)
+            let entity = await demoManager.getDemoEntity(type: persistentArtefact.type)
             
             
             if let entity = entity {
-                guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-                let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-                headTransform.columns.3.x += worldTransform.x
-                headTransform.columns.3.z += worldTransform.z
+                guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
+                guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
+                
+                entity.setOrientation(rotation, relativeTo: nil)
+                
+                var anchor = AnchorEntity(world: transform)
                 
                 entity.components.set(InputTargetComponent(allowedInputTypes: .all))
                 entity.components.set(GroundingShadowComponent(castsShadow: true))
                 entity.components.set(PersistentIDComponent(persistentID: persistentArtefact.id))
                 entity.generateCollisionShapes(recursive: true)
                 
-                var anchor = AnchorEntity(world: headTransform)
                 if let worldAnchor = await worldTracking.worldInfo.allAnchors?.first(where: {$0.id == persistentArtefact.worldAnchor}) {
                     anchor = AnchorEntity(world: worldAnchor.originFromAnchorTransform)
                 }
@@ -383,10 +445,7 @@ class ArtefactManager: ObservableObject {
         let trimmedText = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedText.isEmpty else { return }
         
-        guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-        let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-        headTransform.columns.3.x += worldTransform.x
-        headTransform.columns.3.z += worldTransform.z
+        guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
         
         
         let mesh = MeshResource.generateBox(size: SIMD3<Float>(0.3, 0.3, 0.001))
@@ -402,13 +461,17 @@ class ArtefactManager: ObservableObject {
         containerEntity.addChild(box)
         containerEntity.addChild(textEntity)
         
+        guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
+        
+        containerEntity.setOrientation(rotation, relativeTo: nil)
+        
         centerTextAndBackground(textEntity: textEntity)
         
         containerEntity.name = "TextEntity"
         
         resizeBox(box: box, textEntity: textEntity)
         
-        addArtefact(artefact: containerEntity, at: headTransform, type: .text, data: ArtefactData(textContent: text))
+        addArtefact(artefact: containerEntity, at: transform, type: .text, data: ArtefactData(textContent: text))
     }
     
     public func addImage(data: Data) async {
@@ -426,12 +489,12 @@ class ArtefactManager: ObservableObject {
             let image = ModelEntity(mesh: mesh, materials: [frontMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
             
             
-            guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-            let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-            headTransform.columns.3.x += worldTransform.x
-            headTransform.columns.3.z += worldTransform.z
+            guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
+            guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
+            
+            image.setOrientation(rotation, relativeTo: nil)
             let imageID = persistenceManager.saveImage(data: data)
-            addArtefact(artefact: image, at: headTransform, type: .image, data: ArtefactData(imageAssetID: imageID))
+            addArtefact(artefact: image, at: transform, type: .image, data: ArtefactData(imageAssetID: imageID))
             
             selectedImage = nil
         }
@@ -467,13 +530,13 @@ class ArtefactManager: ObservableObject {
         do {
             let modelEntity = try await ModelEntity(contentsOf: url)
             
-            guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-            let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-            headTransform.columns.3.x += worldTransform.x
-            headTransform.columns.3.z += worldTransform.z
+            guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
+            guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
+            
+            modelEntity.setOrientation(rotation, relativeTo: nil)
             
             let objectID = persistenceManager.saveObject(from: url)
-            addArtefact(artefact: modelEntity, at: headTransform, type: .object, data: ArtefactData(objectID: objectID))
+            addArtefact(artefact: modelEntity, at: transform, type: .object, data: ArtefactData(objectID: objectID))
             selectedObjectURL = nil
         } catch {
             print("Failed to create ModelEntity: \(error)")
@@ -494,24 +557,22 @@ class ArtefactManager: ObservableObject {
         video.name = "VideoEntity"
         video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
         
-        guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-        let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-        headTransform.columns.3.x += worldTransform.x
-        headTransform.columns.3.z += worldTransform.z
+        guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
+        
+        guard let rotation = getOrientationFromMoveByMatrix(transform) else { return }
+        
+        video.setOrientation(rotation, relativeTo: nil)
         
         let videoID = persistenceManager.saveVideo(from: url)
         
-        addArtefact(artefact: video, at: headTransform, type: .video, data: ArtefactData(videoID: videoID))
+        addArtefact(artefact: video, at: transform, type: .video, data: ArtefactData(videoID: videoID))
         
         selectedVideoURL = nil
     }
     
     public func addAudio(url: URL) {
        print("Adding Audio", url.lastPathComponent)
-        guard var headTransform = getHeadWorldPositionAsMatrix() else { return }
-        let worldTransform = headTransform * SIMD4<Float>(0,0,-1,0)
-        headTransform.columns.3.x += worldTransform.x
-        headTransform.columns.3.z += worldTransform.z
+        guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
 
         let mesh = MeshResource.generateSphere(radius: 0.1)
         let material = SimpleMaterial(color: .red, isMetallic: true)
@@ -525,7 +586,7 @@ class ArtefactManager: ObservableObject {
         
         selectedAudioURL = nil
         
-        addArtefact(artefact: sphere, at: headTransform, type: .audio, data: ArtefactData(audioURL: url))
+        addArtefact(artefact: sphere, at: transform, type: .audio, data: ArtefactData(audioURL: url))
     }
     
     func loadInitialArtefacts() {
@@ -586,4 +647,10 @@ class ArtefactManager: ObservableObject {
 
 struct PersistentIDComponent: Component {
     let persistentID: UUID
+}
+
+extension simd_float4 {
+    var xyz: simd_float3 {
+        return simd_float3(x, y, z)
+    }
 }
