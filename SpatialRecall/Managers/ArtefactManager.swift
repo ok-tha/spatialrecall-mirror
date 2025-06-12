@@ -72,7 +72,6 @@ class ArtefactManager: ObservableObject {
                 scale: artefact.scale
             )
             persistentArtefacts.append(persistentArtefact)
-            print(type, at)
             persistenceManager.saveArtefacts(persistentArtefacts)
             
             anchor.children.append(artefact)
@@ -501,7 +500,6 @@ class ArtefactManager: ObservableObject {
     }
     
     public func addObject(url: URL) async {
-        print(url)
         // Request access to security-scoped resource
         var needsSecurityScopedAccess = false
         var didStartAccessing = false
@@ -525,7 +523,6 @@ class ArtefactManager: ObservableObject {
                 url.stopAccessingSecurityScopedResource()
             }
         }
-        print("object", url)
         
         do {
             let modelEntity = try await ModelEntity(contentsOf: url)

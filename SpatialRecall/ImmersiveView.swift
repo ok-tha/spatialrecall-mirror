@@ -12,7 +12,6 @@ import ARKit
 struct ImmersiveView: View {
     @Environment(AppModel.self) var appModel
     @Environment(\.openWindow) var openWindow
-    //@EnvironmentObject var roomTrackingManager: RoomTrackingManager
     @StateObject private var artefactManager = ArtefactManager.shared
     @StateObject private var worldTrackingManager = WorldTrackingManager.shared
 
@@ -38,21 +37,6 @@ struct ImmersiveView: View {
                 openWindow: openWindow
             )
 
-            // Optional: Anzeige des RoomAnchor-Status
-//            if let anchor = roomTrackingManager.currentRoomAnchor {
-//                VStack {
-//                    Spacer()
-//                    Text("Raumanker aktiv: \(anchor.id.uuidString)")
-//                        .font(.caption)
-//                        .padding(6)
-//                        .background(.ultraThinMaterial)
-//                        .cornerRadius(10)
-//                        .padding()
-//                }
-//            }
-        }
-        .task {
-            // Session starten, falls nicht bereits durch init gestartet
         }
     }
 }
@@ -61,5 +45,4 @@ struct ImmersiveView: View {
 #Preview(immersionStyle: .mixed) {
     ImmersiveView()
         .environment(AppModel())
-        //.environmentObject(RoomTrackingManager()) // Für Preview
 }

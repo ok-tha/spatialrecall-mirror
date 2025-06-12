@@ -162,5 +162,4 @@ struct ToggleOption: View {
 #Preview(immersionStyle: .mixed) {
     ImmersiveView()
         .environment(AppModel())
-        //.environmentObject(RoomTrackingManager()) // Für Preview
 }
