@@ -424,6 +424,7 @@ class ArtefactManager: ObservableObject {
         let video = ModelEntity(mesh: mesh, materials: [videoMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
         video.name = "VideoEntity"
         video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
+        ArtefactGestures.updatePlayPauseIndicator(for: video, isPlaying: false, video: true)
         return video
     }
     
@@ -561,6 +562,7 @@ class ArtefactManager: ObservableObject {
         video.setOrientation(rotation, relativeTo: nil)
         
         let videoID = persistenceManager.saveVideo(from: url)
+        ArtefactGestures.updatePlayPauseIndicator(for: video, isPlaying: false, video: true)
         
         addArtefact(artefact: video, at: transform, type: .video, data: ArtefactData(videoID: videoID))
         

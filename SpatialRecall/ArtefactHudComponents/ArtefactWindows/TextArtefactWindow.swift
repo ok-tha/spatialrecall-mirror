@@ -99,7 +99,7 @@ struct TextArtefactWindow: View {
         }
         guard backgroundEntity != nil && textEntity != nil else { dismiss(); return }
         resizeBox(box: backgroundEntity!, textEntity: textEntity!)
-        await artefactManager.savePersistentArtefacts()
+        artefactManager.savePersistentArtefacts()
         artefactManager.textToEditID = nil
         dismiss()
     }

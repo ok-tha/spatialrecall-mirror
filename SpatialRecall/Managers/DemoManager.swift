@@ -162,6 +162,7 @@ class DemoManager {
         )
         video.name = "VideoEntity"
         video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
+        ArtefactGestures.updatePlayPauseIndicator(for: video, isPlaying: false, video: true)
         return video
     }
 

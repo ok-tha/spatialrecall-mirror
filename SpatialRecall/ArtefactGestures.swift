@@ -221,46 +221,84 @@ struct ArtefactGestures {
                             isPlaying = false
                         }
                         artefact.components[VideoComponent.self] = VideoComponent(player: videoComponent.player, isPlaying: isPlaying)
+                        updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying, video: true)
                     }
                 }
             }
     }
 
-    static func updatePlayPauseIndicator(for entity: Entity, isPlaying: Bool) {
-        // Remove existing indicator if any
-        entity.children.removeAll(where: { $0.name == "PlayIndicator" || $0.name == "PauseIndicator" })
+    static func updatePlayPauseIndicator(for entity: Entity, isPlaying: Bool, video: Bool = false) {
+        // Remove any existing indicators and backgrounds
+        entity.children.removeAll(where: { $0.name.contains("Indicator") == true })
 
-        let indicator: ModelEntity
+        // Build the indicator icon
+        let indicator = ModelEntity()
         let material = SimpleMaterial(color: .white, roughness: 0.2, isMetallic: false)
         if isPlaying {
-            // Pause icon: two rectangles
             let leftBar = ModelEntity(mesh: .generateBox(size: [0.02, 0.08, 0.01]), materials: [material])
             leftBar.position.x = -0.015
             let rightBar = ModelEntity(mesh: .generateBox(size: [0.02, 0.08, 0.01]), materials: [material])
             rightBar.position.x = 0.015
-            indicator = ModelEntity()
             indicator.name = "PauseIndicator"
             indicator.addChild(leftBar)
             indicator.addChild(rightBar)
         } else {
-            var descriptor = MeshDescriptor(name: "triangle")
-               // Triangle vertices
-            descriptor.positions = MeshBuffers.Positions([
-                SIMD3<Float>(-0.02, -0.05, 0.0), // bottom-left
-                SIMD3<Float>( 0.05,  0.0,  0.0), // right
-                SIMD3<Float>(-0.02,  0.05, 0.0)  // top-left
+            var desc = MeshDescriptor(name: "triangle")
+            desc.positions = MeshBuffers.Positions([
+                SIMD3(-0.02, -0.05, 0),
+                SIMD3(0.05, 0, 0),
+                SIMD3(-0.02, 0.05, 0)
             ])
-           
-            // Triangle face index
-            descriptor.primitives = .triangles([0, 1, 2])
-           
-            let mesh = try! MeshResource.generate(from: [descriptor])// Replace with triangle mesh for real play icon
-            indicator = ModelEntity(mesh: mesh, materials: [material])
+            desc.primitives = .triangles([0, 1, 2])
+            let mesh = try! MeshResource.generate(from: [desc])
             indicator.name = "PlayIndicator"
+            indicator.model = ModelComponent(mesh: mesh, materials: [material])
         }
-        indicator.position = [0, 0, 0.11]
+
+        // If it's a video—the indicator should be smaller, with background disc
+        if video {
+            let scaleFactor: Float = 0.4
+            indicator.scale = SIMD3(repeating: scaleFactor)
+
+            // Build a circular background using MeshDescriptor
+            let segments = 32
+            let radius: Float = 0.06
+            var circleDesc = MeshDescriptor(name: "circle")
+            var positions = [SIMD3<Float>(0,0,0)]
+            var indices = [UInt32]()
+            for i in 0...segments {
+                let angle = Float(i) / Float(segments) * .pi * 2
+                positions.append(SIMD3(cos(angle)*radius, sin(angle)*radius, 0))
+            }
+            for i in 1...segments {
+                indices += [0, UInt32(i), UInt32(i+1)]
+            }
+            circleDesc.positions = MeshBuffers.Positions(positions)
+            circleDesc.primitives = .triangles(indices)
+            let circleMesh = try! MeshResource.generate(from: [circleDesc])  // :contentReference[oaicite:1]{index=1}
+
+            let bgMat = SimpleMaterial(color: .black, roughness: 1.0, isMetallic: false)
+            let bg = ModelEntity(mesh: circleMesh, materials: [bgMat])
+            bg.name = "IndicatorBackground"
+            bg.position = [0, 0, -0.005]
+            indicator.addChild(bg)
+        }
+
+        // Position logic
+        if video, let model = entity as? ModelEntity, let bounds = model.model?.mesh.bounds {
+            let inset: Float = 0.03
+            indicator.position = [
+                bounds.min.x + inset,
+                bounds.min.y + inset,
+                bounds.max.z + 0.005
+            ]
+        } else {
+            indicator.position = [0, 0, 0.11]
+        }
+
         entity.addChild(indicator)
     }
+
 
     // MARK: - Create-edit-text Gesture
     static func createEditTextGesture(artefactManager: ArtefactManager, appModel: AppModel, openWindow: OpenWindowAction) -> some Gesture {
