@@ -22,7 +22,7 @@ struct ArtefactHudButton: View {
                 VStack(spacing: 10) {
                     if !artefactManager.isErasing {
                         HStack(spacing: 8) {
-                            AddBoxArtefact()
+//                            AddBoxArtefact() //Dont use anymore only reference
                             AddImageArtefact()
                             AddTextArtefact()
                             AddAudioArtefact()
@@ -162,5 +162,4 @@ struct ToggleOption: View {
 #Preview(immersionStyle: .mixed) {
     ImmersiveView()
         .environment(AppModel())
-        .environmentObject(RoomTrackingManager()) // Für Preview
 }

@@ -5,8 +5,10 @@ struct SpatialRecallApp: App {
     
     @State private var appModel = AppModel()
     @State private var avPlayerViewModel = AVPlayerViewModel()
-    @StateObject private var roomTrackingManager = RoomTrackingManager()
 
+    private var artefactManager = ArtefactManager.shared
+    private var worldTracking = WorldTrackingManager.shared
+    
     var body: some Scene {
         WindowGroup(id: appModel.imagePickerWindowID) {
             VStack {
@@ -16,9 +18,7 @@ struct SpatialRecallApp: App {
             }
             .padding()
             .environment(appModel)
-            .environmentObject(roomTrackingManager)
         }
-        .defaultSize(width: 400, height: 300)
         .windowResizability(.contentSize)
         
         WindowGroup(id: appModel.textEditorWindowID) {
@@ -29,7 +29,6 @@ struct SpatialRecallApp: App {
             }
             .padding()
             .environment(appModel)
-            .environmentObject(roomTrackingManager)
         }
         .defaultSize(width: 400, height: 350)
         .windowResizability(.contentSize)
@@ -42,7 +41,6 @@ struct SpatialRecallApp: App {
             }
             .padding()
             .environment(appModel)
-            .environmentObject(roomTrackingManager)
         }
         .defaultSize(width: 400, height: 200)
         .windowResizability(.contentSize)
@@ -55,7 +53,6 @@ struct SpatialRecallApp: App {
             }
             .padding()
             .environment(appModel)
-            .environmentObject(roomTrackingManager)
         }
         .defaultSize(width: 400, height: 200)
         .windowResizability(.contentSize)
@@ -68,7 +65,6 @@ struct SpatialRecallApp: App {
             }
             .padding()
             .environment(appModel)
-            .environmentObject(roomTrackingManager)
         }
         .defaultSize(width: 400, height: 300)
         .windowResizability(.contentSize)
@@ -76,9 +72,13 @@ struct SpatialRecallApp: App {
         ImmersiveSpace(id: appModel.immersiveSpaceID) {
             ImmersiveView()
                 .environment(appModel)
-                .environmentObject(roomTrackingManager)
                 .onAppear {
                     appModel.immersiveSpaceState = .open
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
+                        Task{
+                            await artefactManager.repositionAllAnchors()
+                        }
+                    })
                     avPlayerViewModel.play()
                 }
                 .onDisappear {
