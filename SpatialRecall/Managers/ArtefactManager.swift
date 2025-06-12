@@ -23,7 +23,7 @@ class ArtefactManager: ObservableObject {
     @Published var artefactEntities: [AnchorEntity] = []
     @Published var persistentArtefacts: [PersistentArtefact] = []
     private var demoMode = true //To load default artefacts
-    private var demoModeSetup = true //To get set the locations of the default artefacts and extract the json
+    private var demoModeSetup = false //To get set the locations of the default artefacts and extract the json
     private var demoManager = DemoManager()
     
     

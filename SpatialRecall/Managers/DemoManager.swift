@@ -5,9 +5,9 @@
 //  Created by Lorenz Bernert on 03.06.25.
 //
 
+import AVKit
 import RealityKit
 import SwiftUI
-import AVKit
 
 @MainActor
 class DemoManager {
@@ -61,11 +61,11 @@ class DemoManager {
     func createAudioEntity() async -> Entity? {
         guard
             let url = Bundle.main.url(
-                forResource: "garmisch-walk",
-                withExtension: "mov"
+                forResource: "morning-rain",
+                withExtension: "mp3"
             )
         else {
-            print("File 'garmisch-walk' not found")
+            print("File 'morning-rain' not found")
             return nil
         }
 
