@@ -132,66 +132,34 @@ struct ArtefactGestures {
                 Task{ @MainActor in
                     guard !artefactManager.isErasing else { return }
                     guard let artefact = getValidArtefact(from: value.entity, artefactManager: artefactManager),
-                          artefact.name == "AudioEntity",
-                          let audioComponent = artefact.components[AudioComponent.self]
+                          artefact.name == "AudioEntity"
                     else { return }
-
-                    let url = audioComponent.url
-                    // the security-scoped URL
-                    var needsSecurityScopedAccess = false
-                    var didStartAccessing = false
-
-                    // Check if the file is outside the app sandbox (like from Files app)
-                    // Bundle resources are typically in the app's directory
-                    if !url.path.hasPrefix(Bundle.main.bundlePath) {
-                        needsSecurityScopedAccess = true
-                    }
-
-                    if needsSecurityScopedAccess {
-                        didStartAccessing = url.startAccessingSecurityScopedResource()
-                        if !didStartAccessing {
-                            print("Failed to access security-scoped resource")
-                            return
-                        }
-                    }
-
-                    defer {
-                        if didStartAccessing {
-                            url.stopAccessingSecurityScopedResource()
-                        }
-                    }
-
-                    do {
-                        // Optionally cache inside the app sandbox
-                        let sandboxURL = FileManager.default.temporaryDirectory
-                            .appendingPathComponent(url.lastPathComponent)
-
-                        if !FileManager.default.fileExists(atPath: sandboxURL.path) {
-                            try FileManager.default.copyItem(at: url, to: sandboxURL)
-                        }
-
-                        // Either reuse an existing controller or create one
-                        var isPlaying = false
-                        if let playBack = audioComponent.playbackController {
-                            if playBack.isPlaying {
-                                playBack.pause()
-                            } else {
-                                isPlaying = true
-                                playBack.play()
+                    
+                    if let audioComponent = artefact.components[PlayerComponent.self] {
+                        if !audioComponent.hasAddedEndObserver {
+                            NotificationCenter.default.addObserver(
+                                forName: .AVPlayerItemDidPlayToEndTime,
+                                object: audioComponent.player.currentItem,
+                                queue: .main
+                            ) { _ in
+                                updatePlayPauseIndicator(for: artefact, isPlaying: false)
                             }
-                            
-                        } else {
-                            let resource = try AudioFileResource.load(contentsOf: sandboxURL) // RealityKit 1+
-                            let controller = artefact.playAudio(resource)
-                            artefact.components.set(AudioComponent(url: url, playbackController: controller))
-                            isPlaying = true
                         }
+                        var isPlaying = audioComponent.isPlaying
+                        if  audioComponent.player.currentTime() >= audioComponent.player.currentItem?.duration ?? .zero {
+                            audioComponent.player.seek(to: .zero)
+                            isPlaying = false
+                        }
+                        if !isPlaying {
+                            audioComponent.player.play()
+                            isPlaying = true
+                        } else if isPlaying {
+                            audioComponent.player.pause()
+                            isPlaying = false
+                        }
+                        artefact.components[PlayerComponent.self] = PlayerComponent(player: audioComponent.player, isPlaying: isPlaying, hasAddedEndObserver: true)
                         updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying)
-
-                    } catch {
-                        print("Audio load failed: \(error)")
                     }
-
                 }
             }
     }
@@ -207,7 +175,16 @@ struct ArtefactGestures {
                         
                     if (artefact.name != "VideoEntity") {return}
                     
-                    if let videoComponent = artefact.components[VideoComponent.self] {
+                    if let videoComponent = artefact.components[PlayerComponent.self] {
+                        if !videoComponent.hasAddedEndObserver {
+                            NotificationCenter.default.addObserver(
+                                forName: .AVPlayerItemDidPlayToEndTime,
+                                object: videoComponent.player.currentItem,
+                                queue: .main
+                            ) { _ in
+                                updatePlayPauseIndicator(for: artefact, isPlaying: false, video: true)
+                            }
+                        }
                         var isPlaying = videoComponent.isPlaying
                         if  videoComponent.player.currentTime() >= videoComponent.player.currentItem?.duration ?? .zero {
                             videoComponent.player.seek(to: .zero)
@@ -220,7 +197,7 @@ struct ArtefactGestures {
                             videoComponent.player.pause()
                             isPlaying = false
                         }
-                        artefact.components[VideoComponent.self] = VideoComponent(player: videoComponent.player, isPlaying: isPlaying)
+                        artefact.components[PlayerComponent.self] = PlayerComponent(player: videoComponent.player, isPlaying: isPlaying, hasAddedEndObserver: true)
                         updatePlayPauseIndicator(for: artefact, isPlaying: isPlaying, video: true)
                     }
                 }

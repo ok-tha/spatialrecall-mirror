@@ -74,7 +74,8 @@ class DemoManager {
         let sphere = ModelEntity(mesh: mesh, materials: [material])
 
         sphere.name = "AudioEntity"
-        sphere.components.set(AudioComponent(url: url))
+        let player = AVPlayer(url: url)
+        sphere.components.set(PlayerComponent(player: player, isPlaying: false))
         sphere.components.set(BillboardComponent())
 
         ArtefactGestures.updatePlayPauseIndicator(for: sphere, isPlaying: false)
@@ -161,7 +162,7 @@ class DemoManager {
             ]
         )
         video.name = "VideoEntity"
-        video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
+        video.components.set(PlayerComponent(player: avPlayer, isPlaying: false))
         ArtefactGestures.updatePlayPauseIndicator(for: video, isPlaying: false, video: true)
         return video
     }

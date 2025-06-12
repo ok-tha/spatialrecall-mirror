@@ -35,11 +35,6 @@ struct AddVideoArtefact: View {
     }
 }
 
-struct VideoComponent: Component {
-    var player: AVPlayer
-    var isPlaying: Bool
-}
-
 func getVideoSize(url: URL) async -> CGSize?{
     guard let track = (try? await AVURLAsset(url: url).loadTracks(withMediaType: AVMediaType.video))?.first,
           let (naturalSize, preferredTransform) = try? await track.load(.naturalSize, .preferredTransform) else { return nil }

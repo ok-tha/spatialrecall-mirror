@@ -22,7 +22,7 @@ class ArtefactManager: ObservableObject {
     @Published var artefacts: [Entity] = []
     @Published var artefactEntities: [AnchorEntity] = []
     @Published var persistentArtefacts: [PersistentArtefact] = []
-    private var demoMode = true //To load default artefacts
+    private var demoMode = false //To load default artefacts
     private var demoModeSetup = true //To get set the locations of the default artefacts and extract the json
     private var demoManager = DemoManager()
     
@@ -365,7 +365,8 @@ class ArtefactManager: ObservableObject {
         let sphere = ModelEntity(mesh: mesh, materials: [material])
         
         sphere.name = "AudioEntity"
-        sphere.components.set(AudioComponent(url: url))
+        let avPlayer = AVPlayer(url: url)
+        sphere.components.set(PlayerComponent(player: avPlayer, isPlaying: false))
         sphere.components.set(BillboardComponent())
         
         ArtefactGestures.updatePlayPauseIndicator(for: sphere, isPlaying: false)
@@ -423,7 +424,7 @@ class ArtefactManager: ObservableObject {
         let restMaterial = SimpleMaterial(color: .black, isMetallic: false)
         let video = ModelEntity(mesh: mesh, materials: [videoMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
         video.name = "VideoEntity"
-        video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
+        video.components.set(PlayerComponent(player: avPlayer, isPlaying: false))
         ArtefactGestures.updatePlayPauseIndicator(for: video, isPlaying: false, video: true)
         return video
     }
@@ -553,7 +554,7 @@ class ArtefactManager: ObservableObject {
         let restMaterial = SimpleMaterial(color: .black, isMetallic: false)
         let video = ModelEntity(mesh: mesh, materials: [videoMaterial,/*fron face*/ restMaterial, restMaterial, restMaterial, restMaterial, restMaterial /*other faces*/])
         video.name = "VideoEntity"
-        video.components.set(VideoComponent(player: avPlayer, isPlaying: false))
+        video.components.set(PlayerComponent(player: avPlayer, isPlaying: false))
         
         guard let transform = getHeadPositionAndMoveBy(simd_float3(0,0,-1.0)) else { return }
         
@@ -578,7 +579,8 @@ class ArtefactManager: ObservableObject {
         let sphere = ModelEntity(mesh: mesh, materials: [material])
         
         sphere.name = "AudioEntity"
-        sphere.components.set(AudioComponent(url: url))
+        let player = AVPlayer(url: url)
+        sphere.components.set(PlayerComponent(player: player, isPlaying: false))
         sphere.components.set(BillboardComponent())
         
         ArtefactGestures.updatePlayPauseIndicator(for: sphere, isPlaying: false)

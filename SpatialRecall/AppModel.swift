@@ -8,6 +8,8 @@
 import SwiftUI
 import RealityKit
 
+import AVKit
+
 /// Maintains app-wide state
 @MainActor
 @Observable
@@ -28,7 +30,8 @@ class AppModel {
 
 
 
-public struct AudioComponent: Component {
-    var url: URL
-    var playbackController: AudioPlaybackController?
+public struct PlayerComponent: Component {
+    var player: AVPlayer
+    var isPlaying: Bool
+    var hasAddedEndObserver: Bool = false
 }
