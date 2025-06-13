@@ -66,6 +66,7 @@ Für diese Datenverarbeitung ist Apple Inc. verantwortlich. Details finden Sie i
 Wir verwenden Ihre personenbezogenen Daten ausschließlich für:
 
 Kernfunktionalitäten der App (lokale Verarbeitung auf Ihrem Gerät)
+
 Support und Kommunikation (nur wenn Sie uns kontaktieren)
 
 5. Rechtsgrundlage der Verarbeitung
