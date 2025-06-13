@@ -143,7 +143,9 @@ Bei Fragen zur Datenschutzerklärung oder zur Verarbeitung Ihrer personenbezogen
 
 E-Mail: hello@oliverkuehle.de Telefon: +491709395496
 
+## Projektinhalte
 
+Unseren Showcase 2025 sowie die PowerPoint Präsentation 2025 sind im Wiki dieses Gitlabs zu finden.
 
 ## Abhängigkeiten
 
